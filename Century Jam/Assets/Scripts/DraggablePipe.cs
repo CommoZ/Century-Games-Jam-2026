@@ -3,53 +3,57 @@ using UnityEngine.InputSystem;
 
 public class DraggablePipe : MonoBehaviour
 {
-	private bool isDragging;
-	private Vector3 offset;
+    private bool isDragging;
+    private Vector3 offset;
+    private Vector2Int lastGridPos;
 
-	void Update()
-	{
-		if (Mouse.current == null) return;
+    void Update()
+    {
+        if (Mouse.current == null) return;
 
-		Vector3 mouseWorld = GetMouseWorldPos();
+        Vector3 mouseWorld = GetMouseWorldPos();
 
-		// Mouse Down
-		if (Mouse.current.leftButton.wasPressedThisFrame)
-		{
-			if (GameManager.instance.isFlowing) return;
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            Collider2D col = GetComponent<Collider2D>();
+            if (col == Physics2D.OverlapPoint(mouseWorld))
+            {
+                offset = transform.position - mouseWorld;
+                isDragging = true;
 
-			Collider2D col = GetComponent<Collider2D>();
-			if (col == Physics2D.OverlapPoint(mouseWorld))
-			{
-				offset = transform.position - mouseWorld;
-				isDragging = true;
-			}
-		}
+                Pipe pipe = GetComponent<Pipe>();
+                lastGridPos = pipe.gridPos;
+                GridManager.instance.Remove(lastGridPos);
+            }
+        }
 
-		// Holding
-		if (Mouse.current.leftButton.isPressed && isDragging)
-		{
-			Vector3 newPos = mouseWorld + offset;
-			transform.position = new Vector3(newPos.x, newPos.y, 0);
-		}
+        if (Mouse.current.leftButton.isPressed && isDragging)
+        {
+            transform.position = mouseWorld + offset;
+        }
 
-		// Mouse Up
-		if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
-		{
-			isDragging = false;
+        if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
+        {
+            isDragging = false;
 
-			float cellSize = 1f;
+            Vector2Int gridPos = GridManager.instance.WorldToGrid(transform.position);
 
-			float x = Mathf.Floor(transform.position.x / cellSize) * cellSize + cellSize / 2f;
-			float y = Mathf.Floor(transform.position.y / cellSize) * cellSize + cellSize / 2f;
+            if (!GridManager.instance.IsOccupied(gridPos))
+            {
+                GridManager.instance.Place(GetComponent<Pipe>(), gridPos);
+            }
+            else
+            {
+                // Return back
+                GridManager.instance.Place(GetComponent<Pipe>(), lastGridPos);
+            }
+        }
+    }
 
-			transform.position = new Vector3(x, y, 0);
-		}
-	}
-
-	private Vector3 GetMouseWorldPos()
-	{
-		Vector3 mousePoint = Mouse.current.position.ReadValue();
-		mousePoint.z = 10;
-		return Camera.main.ScreenToWorldPoint(mousePoint);
-	}
+    Vector3 GetMouseWorldPos()
+    {
+        Vector3 m = Mouse.current.position.ReadValue();
+        m.z = 10;
+        return Camera.main.ScreenToWorldPoint(m);
+    }
 }
