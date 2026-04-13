@@ -198,7 +198,9 @@ public class SPHFluid2D : MonoBehaviour
         {
             GameObject obj = Instantiate(particlePrefab, position, Quaternion.identity, transform);
             particleVisuals.Add(obj.transform);
-            particleRenderers.Add(obj.GetComponent<SpriteRenderer>());
+            SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = false;
+            particleRenderers.Add(sr);
         }
         else
         {
