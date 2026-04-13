@@ -7,6 +7,8 @@ public class FluidRenderer : MonoBehaviour
     [SerializeField] private Material metaballParticleMaterial;
     [SerializeField] private Material waterThresholdMaterial;
     [SerializeField] private float particleRenderSize = 0.5f;
+    [SerializeField] private float velocityStretch = 3.0f;
+    [SerializeField] private float maxStretch = 2.0f;
     [SerializeField] private int renderTextureScale = 1;
 
     [Header("Display")]
@@ -181,18 +183,45 @@ public class FluidRenderer : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Vector2 pos = particles[i].position;
+            Vector2 vel = particles[i].velocity;
+            float speed = vel.magnitude;
 
-            GL.TexCoord2(0, 0);
-            GL.Vertex3(pos.x - half, pos.y - half, 0);
+            // Stretch quad along velocity direction
+            float stretch = Mathf.Min(speed * velocityStretch, maxStretch);
 
-            GL.TexCoord2(1, 0);
-            GL.Vertex3(pos.x + half, pos.y - half, 0);
+            // R=intensity, G=flow speed, B=teardrop amount (0=circle, 1=full teardrop)
+            float speedNorm = Mathf.Clamp01(speed * 20.0f);
+            float teardropAmount = Mathf.Clamp01(stretch / Mathf.Max(0.01f, maxStretch));
+            GL.Color(new Color(1f, speedNorm, teardropAmount, 1f));
 
-            GL.TexCoord2(1, 1);
-            GL.Vertex3(pos.x + half, pos.y + half, 0);
+            if (stretch > 0.01f)
+            {
+                // Build oriented quad: elongated along velocity, normal width perpendicular
+                Vector2 dir = vel / speed;
+                Vector2 perp = new Vector2(-dir.y, dir.x);
 
-            GL.TexCoord2(0, 1);
-            GL.Vertex3(pos.x - half, pos.y + half, 0);
+                Vector2 forward = dir * (half + stretch);
+                Vector2 side = perp * half;
+
+                // 4 corners of the stretched quad
+                Vector2 bl = pos - forward - side;
+                Vector2 br = pos - forward + side;
+                Vector2 tr = pos + forward + side;
+                Vector2 tl = pos + forward - side;
+
+                GL.TexCoord2(0, 0); GL.Vertex3(bl.x, bl.y, 0);
+                GL.TexCoord2(1, 0); GL.Vertex3(br.x, br.y, 0);
+                GL.TexCoord2(1, 1); GL.Vertex3(tr.x, tr.y, 0);
+                GL.TexCoord2(0, 1); GL.Vertex3(tl.x, tl.y, 0);
+            }
+            else
+            {
+                // Stationary — regular square quad
+                GL.TexCoord2(0, 0); GL.Vertex3(pos.x - half, pos.y - half, 0);
+                GL.TexCoord2(1, 0); GL.Vertex3(pos.x + half, pos.y - half, 0);
+                GL.TexCoord2(1, 1); GL.Vertex3(pos.x + half, pos.y + half, 0);
+                GL.TexCoord2(0, 1); GL.Vertex3(pos.x - half, pos.y + half, 0);
+            }
         }
         GL.End();
 

@@ -5,11 +5,9 @@ Shader "Fluid/WaterThreshold"
         _MainTex ("Metaball Texture", 2D) = "black" {}
         _Threshold ("Threshold", Range(0.01, 1.0)) = 0.4
         _EdgeSmooth ("Edge Smoothness", Range(0.001, 0.2)) = 0.05
-        _ShallowColor ("Shallow Color", Color) = (0.3, 0.85, 1.0, 0.7)
-        _DeepColor ("Deep Color", Color) = (0.05, 0.3, 0.8, 0.9)
-        _EdgeColor ("Edge Color", Color) = (0.6, 0.95, 1.0, 1.0)
+        _WaterColor ("Water Color", Color) = (0.15, 0.5, 0.95, 0.9)
+        _EdgeColor ("Edge Color", Color) = (0.4, 0.75, 1.0, 1.0)
         _EdgeWidth ("Edge Width", Range(0.0, 0.2)) = 0.06
-        _DepthContrast ("Depth Contrast", Range(0.5, 5.0)) = 2.0
     }
     SubShader
     {
@@ -44,11 +42,9 @@ Shader "Fluid/WaterThreshold"
 
             float _Threshold;
             float _EdgeSmooth;
-            half4 _ShallowColor;
-            half4 _DeepColor;
+            half4 _WaterColor;
             half4 _EdgeColor;
             float _EdgeWidth;
-            float _DepthContrast;
 
             Varyings vert(Attributes input)
             {
@@ -62,19 +58,14 @@ Shader "Fluid/WaterThreshold"
             {
                 float value = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).r;
 
-                // Hard-ish edge via smoothstep at the threshold
                 float alpha = smoothstep(_Threshold - _EdgeSmooth, _Threshold + _EdgeSmooth, value);
 
                 if (alpha < 0.001)
                     discard;
 
-                // How far above threshold — drives shallow vs deep color
-                float depth = saturate((value - _Threshold) * _DepthContrast);
-                half4 bodyColor = lerp(_ShallowColor, _DeepColor, depth);
-
-                // Bright edge highlight where alpha transitions
+                // Flat water color with a subtle bright edge
                 float edgeFactor = 1.0 - smoothstep(0.0, _EdgeWidth, value - _Threshold);
-                half4 color = lerp(bodyColor, _EdgeColor, edgeFactor * 0.6);
+                half4 color = lerp(_WaterColor, _EdgeColor, edgeFactor * 0.5);
                 color.a *= alpha;
 
                 return color;

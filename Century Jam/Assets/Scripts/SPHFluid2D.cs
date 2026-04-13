@@ -57,6 +57,7 @@ public class SPHFluid2D : MonoBehaviour
     [SerializeField] private float nearPressureMultiplier = 10.0f;
     [SerializeField] private float viscosity = 3.0f;
     [SerializeField] private float viscosityBeta = 4.0f;
+    [SerializeField] private float surfaceTension = 0.005f;
     [SerializeField] private Vector2 gravity = new Vector2(0.0f, -0.0007f);
     [SerializeField] private float maxAccel = 0.29f;
     [SerializeField] private int simulationStepsPerFixedUpdate = 1;
@@ -91,6 +92,7 @@ public class SPHFluid2D : MonoBehaviour
     private readonly Dictionary<Vector2Int, List<int>> spatialHash = new Dictionary<Vector2Int, List<int>>();
     private readonly List<int> neighborCandidates = new List<int>(64);
 
+    private readonly List<Vector2> preStepPositions = new List<Vector2>();
     private float spawnAccumulator;
 
     public int ParticleCount => particles.Count;
@@ -130,6 +132,7 @@ public class SPHFluid2D : MonoBehaviour
         ComputeDensities();
         ComputePressures();
         ComputePressureForces();
+        ApplySurfaceTension();
         ApplyViscosity();
     }
 
@@ -226,16 +229,27 @@ public class SPHFluid2D : MonoBehaviour
         float maxVelocitySqr = maxVelocity * maxVelocity;
         float boundarySpring = Mathf.Max(0.0f, boundaryDamping);
 
+        // Grow pre-step list if needed
+        while (preStepPositions.Count < particles.Count)
+            preStepPositions.Add(Vector2.zero);
+
         for (int i = 0; i < particles.Count; i++)
         {
             FluidParticle p = particles[i];
+
+            // Save position before any movement for collision raycasts
+            preStepPositions[i] = p.position;
+
+            // Clamp force so no single step creates an explosion
+            if (maxVelocity > 0.0f && p.force.sqrMagnitude > maxVelocitySqr)
+                p.force = p.force.normalized * maxVelocity;
 
             p.position += p.force;
             p.force = gravity;
 
             p.velocity = p.position - p.positionOld;
             if (maxVelocity > 0.0f && p.velocity.sqrMagnitude > maxVelocitySqr)
-                p.velocity *= 0.5f;
+                p.velocity = p.velocity.normalized * maxVelocity;
 
             p.positionOld = p.position;
             p.position += p.velocity;
@@ -287,16 +301,20 @@ public class SPHFluid2D : MonoBehaviour
             FluidParticle p = particles[i];
             bool resolved = false;
 
-            // 1) Raycast from old position to new position to catch tunneling
-            Vector2 moveDir = p.position - p.positionOld;
+            // 1) Raycast from pre-step position to catch full movement (force + velocity)
+            Vector2 origin = i < preStepPositions.Count ? preStepPositions[i] : p.positionOld;
+            Vector2 moveDir = p.position - origin;
             float moveDist = moveDir.magnitude;
             if (moveDist > 0.0001f)
             {
-                int rayHits = Physics2D.Raycast(p.positionOld, moveDir / moveDist, filter, rayResults, moveDist);
+                int rayHits = Physics2D.Raycast(origin, moveDir / moveDist, filter, rayResults, moveDist);
                 if (rayHits > 0)
                 {
                     RaycastHit2D rayHit = rayResults[0];
-                    p.position = rayHit.point + rayHit.normal * radius;
+                    // Tangent jitter so particles don't stack in a perfect line
+                    Vector2 tangent = new Vector2(-rayHit.normal.y, rayHit.normal.x);
+                    float jitter = Random.Range(-0.02f, 0.02f);
+                    p.position = rayHit.point + rayHit.normal * radius + tangent * jitter;
 
                     float velIntoWall = Vector2.Dot(p.velocity, -rayHit.normal);
                     if (velIntoWall > 0.0f)
@@ -307,13 +325,16 @@ public class SPHFluid2D : MonoBehaviour
                 }
             }
 
-            // 2) Overlap check for particles already inside or near a collider
-            if (!resolved)
+            // 2) Overlap check — resolve ALL overlapping colliders (handles corners)
+            for (int pass = 0; pass < 3; pass++)
             {
                 int hitCount = Physics2D.OverlapCircle(p.position, radius, filter, overlapResults);
-                if (hitCount > 0)
+                if (hitCount == 0)
+                    break;
+
+                for (int h = 0; h < hitCount; h++)
                 {
-                    Collider2D hit = overlapResults[0];
+                    Collider2D hit = overlapResults[h];
                     Vector2 closest = hit.ClosestPoint(p.position);
                     Vector2 diff = p.position - closest;
                     float dist = diff.magnitude;
@@ -343,6 +364,33 @@ public class SPHFluid2D : MonoBehaviour
                         p.force += normal * penetration * wallSpringForce;
                     }
                 }
+            }
+
+            // 3) Final containment check — if particle is still inside a collider, it escaped
+            Collider2D inside = Physics2D.OverlapPoint(p.position, wallLayerMask);
+            if (inside != null)
+            {
+                Vector2 closest = inside.ClosestPoint(p.position);
+                Vector2 toSurface = closest - p.position;
+                float surfaceDist = toSurface.magnitude;
+
+                if (surfaceDist > 0.0001f)
+                {
+                    // Push to surface + buffer along the wall normal
+                    Vector2 normal = toSurface / surfaceDist;
+                    p.position = closest + normal * radius;
+                }
+                else
+                {
+                    // Exactly on or at center — push away from collider center
+                    Vector2 escape = (p.position - (Vector2)inside.bounds.center).normalized;
+                    if (escape.sqrMagnitude < 0.001f)
+                        escape = Vector2.up;
+                    p.position += escape * radius;
+                }
+
+                p.velocity = Vector2.zero;
+                p.positionOld = p.position;
             }
 
             particles[i] = p;
@@ -446,6 +494,44 @@ public class SPHFluid2D : MonoBehaviour
             }
 
             p.force -= pressureDisplacement;
+            particles[i] = p;
+        }
+    }
+
+    private void ApplySurfaceTension()
+    {
+        if (surfaceTension <= 0.0f)
+            return;
+
+        for (int i = 0; i < particles.Count; i++)
+        {
+            FluidParticle p = particles[i];
+            List<Neighbor> neighbors = particleNeighbors[i];
+
+            if (neighbors.Count == 0)
+                continue;
+
+            // Compute weighted average neighbor position (cohesion target)
+            Vector2 cohesionCenter = Vector2.zero;
+            float weightSum = 0.0f;
+
+            for (int n = 0; n < neighbors.Count; n++)
+            {
+                Neighbor neighbor = neighbors[n];
+                float weight = neighbor.q2; // Closer neighbors pull stronger
+                cohesionCenter += particles[neighbor.index].position * weight;
+                weightSum += weight;
+            }
+
+            if (weightSum > 0.0001f)
+            {
+                cohesionCenter /= weightSum;
+
+                // Pull particle toward the average — this is the cohesion force
+                Vector2 toCenter = cohesionCenter - p.position;
+                p.force += toCenter * surfaceTension;
+            }
+
             particles[i] = p;
         }
     }
