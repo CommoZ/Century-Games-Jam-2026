@@ -749,6 +749,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+      propertyPath: streamWidth
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
       propertyPath: streamSource
       value: 
       objectReference: {fileID: 17045235}
