@@ -499,6 +499,7 @@ MonoBehaviour:
   cancelKnob: {fileID: 7949557322284917268}
   transparentSprite: {fileID: 580288339744832910}
   borderSprite: {fileID: 4149810615234911788}
+  pipeType: 0
 --- !u!1 &5172520685118181525
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,7 +656,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -0.40000004, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4780556294107617220}
@@ -754,4 +755,4 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.1
+  m_Radius: 0.15

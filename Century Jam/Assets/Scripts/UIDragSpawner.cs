@@ -12,8 +12,7 @@ public class UIDragSpawner : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     {
         // Spawn pipe when drag starts
         spawnedObject = Instantiate(worldPrefab);
-        DraggablePipe pipe = spawnedObject.GetComponent<DraggablePipe>();
-        pipe.pipeType = pipeType; // Set type as needed
+       
         UpdateWorldPosition(eventData);
     }
 

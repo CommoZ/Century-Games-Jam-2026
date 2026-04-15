@@ -1,3 +1,5 @@
+using System.Data.SqlTypes;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,10 +10,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject fluid;
     [SerializeField] private GameObject resetButton;
     [SerializeField] private GameObject clearButton;
+    [SerializeField] private TextMeshProUGUI time;
 
-    private GameObject[] pipesArray;
     private bool isPlaying = false;
-
+    private float timePassed = 0.0f;
     void Awake()
     {
         if (instance == null)
@@ -30,12 +32,23 @@ public class GameManager : MonoBehaviour
         //pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
     }
 
+    private void Update()
+    {
+        if (isPlaying)
+        {
+            timePassed += Time.deltaTime;
+            time.text = timePassed.ToString("F2");
+        }
+    }
+
     // START GAME
     public void onGreenButtonPress()
     {
         if (isPlaying) return;
 
         isPlaying = true;
+
+        timePassed = 0.0f;
 
         SPHFluid2D fluidScript = fluid.GetComponent<SPHFluid2D>();
         if (fluidScript != null)
@@ -97,9 +110,17 @@ public class GameManager : MonoBehaviour
             {
                 Destroy(pipe);
             }
+            timePassed = 0.0f;
+            time.text = "Time";
 
             // Refresh pipe array
             pipesArray = new GameObject[0];
         }
     }
+
+    public void onExitButtonPress()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
 }
