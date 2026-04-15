@@ -48,6 +48,8 @@ public class SPHFluid2D : MonoBehaviour
     [SerializeField] private float streamWidth = 0.5f;
     [SerializeField] private int streamParticlesPerSecond = 60;
     [SerializeField] private int maxParticles = 1000;
+    [Tooltip("How long the stream spawns particles (seconds). 0 = unlimited.")]
+    [SerializeField] private float streamDuration = 0f;
 
     [Header("Physics")]
     [SerializeField] private float particleMass = 1.0f;
@@ -94,6 +96,7 @@ public class SPHFluid2D : MonoBehaviour
 
     private readonly List<Vector2> preStepPositions = new List<Vector2>();
     private float spawnAccumulator;
+    private float streamTimer;
 
     public int ParticleCount => particles.Count;
     public List<FluidParticle> Particles => particles;
@@ -159,6 +162,13 @@ public class SPHFluid2D : MonoBehaviour
     {
         if (particles.Count >= maxParticles || streamParticlesPerSecond <= 0)
             return;
+
+        if (streamDuration > 0f)
+        {
+            streamTimer += Time.fixedDeltaTime;
+            if (streamTimer >= streamDuration)
+                return;
+        }
 
         spawnAccumulator += Time.fixedDeltaTime * streamParticlesPerSecond;
 
@@ -637,6 +647,12 @@ public class SPHFluid2D : MonoBehaviour
         }
     }
 
+    public void ResetStreamTimer()
+    {
+        streamTimer = 0.0f;
+        spawnAccumulator = 0.0f;
+    }
+
     public void RespawnParticles()
     {
         for (int i = 0; i < particleVisuals.Count; i++)
@@ -650,6 +666,7 @@ public class SPHFluid2D : MonoBehaviour
         particleRenderers.Clear();
         particleNeighbors = new List<Neighbor>[0];
         spawnAccumulator = 0.0f;
+        streamTimer = 0.0f;
 
         if (spawnInitialBlock)
             SpawnBlock();
