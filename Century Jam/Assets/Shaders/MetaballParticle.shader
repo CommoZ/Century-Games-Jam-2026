@@ -11,7 +11,7 @@ Shader "Fluid/MetaballParticle"
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" "RenderPipeline"="UniversalPipeline" }
 
-        Blend One One // Additive blending
+        Blend One One
         ZWrite Off
         Cull Off
 
@@ -25,16 +25,16 @@ Shader "Fluid/MetaballParticle"
 
             struct Attributes
             {
-                float4 positionOS : POSITION;
+                float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
-                float4 color : COLOR;
+                float2 data : TEXCOORD1;
             };
 
             struct Varyings
             {
-                float4 positionCS : SV_POSITION;
+                float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float4 color : COLOR;
+                float2 data : TEXCOORD1;
             };
 
             float _Softness;
@@ -45,32 +45,26 @@ Shader "Fluid/MetaballParticle"
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                output.pos = TransformObjectToHClip(input.vertex.xyz);
                 output.uv = input.uv;
-                output.color = input.color;
+                output.data = input.data;
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
-                float teardrop = input.color.b; // 0 = circle, 1 = full teardrop
+                float teardrop = input.data.y;
+                float speed = input.data.x;
 
                 float2 uv = input.uv;
-
-                // Y axis: 0 = tail (behind), 1 = front (leading edge)
-                // X axis: -0.5 to 0.5 centered
-
                 float value;
 
                 if (teardrop > 0.01)
                 {
-                    // Teardrop / water droplet shape
-                    // Shift center forward so the round head is at the front
                     float centerShift = lerp(0.0, _TailLength, teardrop);
                     float2 p = float2(uv.x - 0.5, uv.y - (0.5 + centerShift));
 
-                    // Taper width toward the tail: full width at front, narrow at back
-                    float yNorm = saturate((uv.y) / (0.5 + centerShift)); // 0 at tail tip, 1 at center
+                    float yNorm = saturate(uv.y / (0.5 + centerShift));
                     float taper = lerp(_TailTaper, 1.0, yNorm * yNorm);
                     p.x /= max(taper, 0.001);
 
@@ -81,7 +75,6 @@ Shader "Fluid/MetaballParticle"
                 }
                 else
                 {
-                    // Normal circle
                     float2 center = uv - 0.5;
                     float dist = length(center) * 2.0;
                     float falloff = saturate(1.0 - dist / _Softness);
@@ -89,8 +82,7 @@ Shader "Fluid/MetaballParticle"
                     value = falloff * _Intensity;
                 }
 
-                float velocityInfo = input.color.g * value;
-                return half4(value, velocityInfo, 0, value);
+                return half4(value, value * speed, 0, value);
             }
             ENDHLSL
         }

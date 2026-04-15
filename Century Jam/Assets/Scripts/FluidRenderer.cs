@@ -15,24 +15,16 @@ public class FluidRenderer : MonoBehaviour
     [SerializeField] private int sortingOrder = 10;
 
     private SPHFluid2D fluid;
-    private Camera metaballCamera;
     private RenderTexture metaballRT;
     private GameObject displayQuad;
-    private Mesh particleMesh;
-    private MaterialPropertyBlock mpb;
     private Camera mainCam;
 
     private void Start()
     {
         fluid = GetComponent<SPHFluid2D>();
         mainCam = Camera.main;
-        mpb = new MaterialPropertyBlock();
 
-        CreateParticleMesh();
-        SetupMetaballCamera();
         SetupDisplayQuad();
-
-        // Hide the sprite visuals — the metaball shader replaces them
         HideSpriteVisuals();
     }
 
@@ -41,43 +33,13 @@ public class FluidRenderer : MonoBehaviour
         if (fluid.ParticleCount == 0)
             return;
 
+        mainCam = Camera.main;
+        if (mainCam == null)
+            return;
+
         EnsureRenderTexture();
         RenderMetaballs();
         UpdateDisplayQuad();
-    }
-
-    private void CreateParticleMesh()
-    {
-        particleMesh = new Mesh();
-        particleMesh.vertices = new Vector3[]
-        {
-            new Vector3(-0.5f, -0.5f, 0),
-            new Vector3( 0.5f, -0.5f, 0),
-            new Vector3( 0.5f,  0.5f, 0),
-            new Vector3(-0.5f,  0.5f, 0)
-        };
-        particleMesh.uv = new Vector2[]
-        {
-            new Vector2(0, 0),
-            new Vector2(1, 0),
-            new Vector2(1, 1),
-            new Vector2(0, 1)
-        };
-        particleMesh.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
-        particleMesh.RecalculateBounds();
-    }
-
-    private void SetupMetaballCamera()
-    {
-        GameObject camObj = new GameObject("MetaballCamera");
-        camObj.transform.SetParent(transform);
-        metaballCamera = camObj.AddComponent<Camera>();
-        metaballCamera.enabled = false; // We render manually
-        metaballCamera.clearFlags = CameraClearFlags.SolidColor;
-        metaballCamera.backgroundColor = Color.clear;
-        metaballCamera.orthographic = true;
-        metaballCamera.cullingMask = 0; // We draw manually, not via layers
-        metaballCamera.depth = -100;
     }
 
     private void SetupDisplayQuad()
@@ -135,22 +97,12 @@ public class FluidRenderer : MonoBehaviour
 
     private void RenderMetaballs()
     {
-        if (metaballParticleMaterial == null || mainCam == null)
+        if (metaballParticleMaterial == null)
             return;
 
-        // Match the metaball camera to the main camera's view
-        metaballCamera.orthographicSize = mainCam.orthographicSize;
-        metaballCamera.transform.position = mainCam.transform.position;
-        metaballCamera.transform.rotation = mainCam.transform.rotation;
-        metaballCamera.aspect = mainCam.aspect;
-
-        // Render to the RT
-        metaballCamera.targetTexture = metaballRT;
-        metaballCamera.Render();
-
-        // Draw each particle as a soft quad
+        // Save current RT and switch to our metaball RT
         RenderTexture prev = RenderTexture.active;
-        Graphics.SetRenderTarget(metaballRT);
+        RenderTexture.active = metaballRT;
         GL.Clear(true, true, Color.clear);
 
         // Set up orthographic projection matching the main camera
@@ -158,14 +110,9 @@ public class FluidRenderer : MonoBehaviour
         float halfWidth = halfHeight * mainCam.aspect;
         Vector3 camPos = mainCam.transform.position;
 
-        Matrix4x4 view = Matrix4x4.TRS(
-            new Vector3(-camPos.x, -camPos.y, 0),
-            Quaternion.identity,
-            Vector3.one
-        );
         Matrix4x4 proj = Matrix4x4.Ortho(
-            -halfWidth, halfWidth,
-            -halfHeight, halfHeight,
+            camPos.x - halfWidth, camPos.x + halfWidth,
+            camPos.y - halfHeight, camPos.y + halfHeight,
             -1, 1
         );
 
@@ -173,7 +120,6 @@ public class FluidRenderer : MonoBehaviour
         GL.PushMatrix();
         GL.LoadProjectionMatrix(proj);
         GL.LoadIdentity();
-        GL.MultMatrix(view);
 
         var particles = fluid.Particles;
         int count = fluid.ParticleCount;
@@ -186,41 +132,35 @@ public class FluidRenderer : MonoBehaviour
             Vector2 vel = particles[i].velocity;
             float speed = vel.magnitude;
 
-            // Stretch quad along velocity direction
             float stretch = Mathf.Min(speed * velocityStretch, maxStretch);
 
-            // R=intensity, G=flow speed, B=teardrop amount (0=circle, 1=full teardrop)
             float speedNorm = Mathf.Clamp01(speed * 20.0f);
             float teardropAmount = Mathf.Clamp01(stretch / Mathf.Max(0.01f, maxStretch));
-            GL.Color(new Color(1f, speedNorm, teardropAmount, 1f));
 
             if (stretch > 0.01f)
             {
-                // Build oriented quad: elongated along velocity, normal width perpendicular
                 Vector2 dir = vel / speed;
                 Vector2 perp = new Vector2(-dir.y, dir.x);
 
                 Vector2 forward = dir * (half + stretch);
                 Vector2 side = perp * half;
 
-                // 4 corners of the stretched quad
                 Vector2 bl = pos - forward - side;
                 Vector2 br = pos - forward + side;
                 Vector2 tr = pos + forward + side;
                 Vector2 tl = pos + forward - side;
 
-                GL.TexCoord2(0, 0); GL.Vertex3(bl.x, bl.y, 0);
-                GL.TexCoord2(1, 0); GL.Vertex3(br.x, br.y, 0);
-                GL.TexCoord2(1, 1); GL.Vertex3(tr.x, tr.y, 0);
-                GL.TexCoord2(0, 1); GL.Vertex3(tl.x, tl.y, 0);
+                GL.MultiTexCoord2(0, 0, 0); GL.MultiTexCoord2(1, speedNorm, teardropAmount); GL.Vertex3(bl.x, bl.y, 0);
+                GL.MultiTexCoord2(0, 1, 0); GL.MultiTexCoord2(1, speedNorm, teardropAmount); GL.Vertex3(br.x, br.y, 0);
+                GL.MultiTexCoord2(0, 1, 1); GL.MultiTexCoord2(1, speedNorm, teardropAmount); GL.Vertex3(tr.x, tr.y, 0);
+                GL.MultiTexCoord2(0, 0, 1); GL.MultiTexCoord2(1, speedNorm, teardropAmount); GL.Vertex3(tl.x, tl.y, 0);
             }
             else
             {
-                // Stationary — regular square quad
-                GL.TexCoord2(0, 0); GL.Vertex3(pos.x - half, pos.y - half, 0);
-                GL.TexCoord2(1, 0); GL.Vertex3(pos.x + half, pos.y - half, 0);
-                GL.TexCoord2(1, 1); GL.Vertex3(pos.x + half, pos.y + half, 0);
-                GL.TexCoord2(0, 1); GL.Vertex3(pos.x - half, pos.y + half, 0);
+                GL.MultiTexCoord2(0, 0, 0); GL.MultiTexCoord2(1, 0, 0); GL.Vertex3(pos.x - half, pos.y - half, 0);
+                GL.MultiTexCoord2(0, 1, 0); GL.MultiTexCoord2(1, 0, 0); GL.Vertex3(pos.x + half, pos.y - half, 0);
+                GL.MultiTexCoord2(0, 1, 1); GL.MultiTexCoord2(1, 0, 0); GL.Vertex3(pos.x + half, pos.y + half, 0);
+                GL.MultiTexCoord2(0, 0, 1); GL.MultiTexCoord2(1, 0, 0); GL.Vertex3(pos.x - half, pos.y + half, 0);
             }
         }
         GL.End();
@@ -234,7 +174,6 @@ public class FluidRenderer : MonoBehaviour
         if (waterThresholdMaterial == null || mainCam == null)
             return;
 
-        // Size the quad to cover the camera's visible area
         float height = mainCam.orthographicSize * 2.0f;
         float width = height * mainCam.aspect;
 
@@ -250,7 +189,6 @@ public class FluidRenderer : MonoBehaviour
 
     private void HideSpriteVisuals()
     {
-        // Disable sprite renderers on particle children — metaball takes over
         SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>();
         foreach (var sr in sprites)
             sr.enabled = false;
@@ -263,9 +201,6 @@ public class FluidRenderer : MonoBehaviour
             metaballRT.Release();
             metaballRT = null;
         }
-
-        if (metaballCamera != null)
-            Destroy(metaballCamera.gameObject);
 
         if (displayQuad != null)
             Destroy(displayQuad);

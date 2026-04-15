@@ -587,7 +587,7 @@ MonoBehaviour:
   metaballParticleMaterial: {fileID: 2100000, guid: 4ab8296b1fdc46c4eaffa9453e414bcf, type: 2}
   waterThresholdMaterial: {fileID: 2100000, guid: feb4b2e18c382c34a9910b980ea083b2, type: 2}
   particleRenderSize: 0.5
-  velocityStretch: 3
+  velocityStretch: 5
   maxStretch: 2
   renderTextureScale: 1
   sortingOrder: 10
@@ -886,7 +886,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
       propertyPath: streamParticlesPerSecond
-      value: 30
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6469183019846635217, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
       propertyPath: m_Name

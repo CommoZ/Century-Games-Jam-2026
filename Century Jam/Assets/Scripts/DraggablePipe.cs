@@ -40,10 +40,9 @@ public class DraggablePipe : MonoBehaviour
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Collider2D hit = Physics2D.OverlapPoint(mouseWorld);
-            Collider2D knob = Physics2D.OverlapPoint(mouseWorld, LayerMask.GetMask("RotateKnob"));
 
-            // Rotate Mode (only if selected)
-            if (isSelected && rotateKnobCollider != null && knob == rotateKnobCollider)
+            // Rotate Mode (only if selected, check by collider reference)
+            if (isSelected && rotateKnobCollider != null && hit == rotateKnobCollider)
             {
                 isRotating = true;
 
@@ -54,7 +53,7 @@ public class DraggablePipe : MonoBehaviour
                 return;
             }
 
-            if (isSelected && cancelKnobCollider != null && knob == cancelKnobCollider)
+            if (isSelected && cancelKnobCollider != null && hit == cancelKnobCollider)
             {
                 // Reset rotation and position
                 transform.rotation = Quaternion.identity;
@@ -71,7 +70,7 @@ public class DraggablePipe : MonoBehaviour
                     rotateKnob.SetActive(true);
 
                 if (cancelKnob != null)
-                    cancelKnob.SetActive(true); 
+                    cancelKnob.SetActive(true);
 
                 offset = transform.position - mouseWorld;
                 isDragging = true;
