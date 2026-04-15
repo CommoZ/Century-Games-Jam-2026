@@ -3,54 +3,121 @@ using UnityEngine.InputSystem;
 
 public class DraggablePipe : MonoBehaviour
 {
-	private bool isDragging;
-	private Vector3 offset;
+    private bool isDragging;
+    private bool isRotating;
+    private bool isSelected;
 
-	void Update()
-	{
-		if (Mouse.current == null) return;
+    private Vector3 offset;
 
-		Vector3 mouseWorld = GetMouseWorldPos();
+    [SerializeField] private GameObject rotateKnob;
+    [SerializeField] private GameObject cancelKnob;
+    private Collider2D rotateKnobCollider;
+    private Collider2D cancelKnobCollider;
+    private float startAngle;
+    private float startRotation;
 
-		// Mouse Down
-		if (Mouse.current.leftButton.wasPressedThisFrame)
-		{
-			//if (GameManager.instance.isFlowing) return;
+    void Start()
+    {
+        if (rotateKnob != null)
+        {
+            rotateKnobCollider = rotateKnob.GetComponent<Collider2D>();
+            rotateKnob.SetActive(false);
+        }
+        if (cancelKnob != null)
+        {
+            cancelKnobCollider = cancelKnob.GetComponent<Collider2D>();
+            cancelKnob.SetActive(false);
+        }
+    }
 
-			Collider2D hit = Physics2D.OverlapPoint(mouseWorld);
+    void Update()
+    {
+        if (Mouse.current == null) return;
 
-			if (hit != null && hit.transform == transform)
-			{
-				offset = transform.position - mouseWorld;
-				isDragging = true;
-			}
-		}
+        Vector3 mouseWorld = GetMouseWorldPos();
 
-		// Holding
-		if (Mouse.current.leftButton.isPressed && isDragging)
-		{
-			Vector3 newPos = mouseWorld + offset;
-			transform.position = new Vector3(newPos.x, newPos.y, 0);
-		}
+        // Mouse Down
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            Collider2D hit = Physics2D.OverlapPoint(mouseWorld);
+            Collider2D knob = Physics2D.OverlapPoint(mouseWorld, LayerMask.GetMask("RotateKnob"));
 
-		// Mouse Up
-		if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
-		{
-			isDragging = false;
+            // Rotate Mode (only if selected)
+            if (isSelected && rotateKnobCollider != null && knob == rotateKnobCollider)
+            {
+                isRotating = true;
 
-			//float cellSize = 1f;
+                Vector2 dir = mouseWorld - transform.position;
+                startAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                startRotation = transform.eulerAngles.z;
 
-			//float x = Mathf.Floor(transform.position.x / cellSize) * cellSize + cellSize / 2f;
-			//float y = Mathf.Floor(transform.position.y / cellSize) * cellSize + cellSize / 2f;
+                return;
+            }
 
-			//transform.position = new Vector3(x, y, 0);
-		}
-	}
+            if (isSelected && cancelKnobCollider != null && knob == cancelKnobCollider)
+            {
+                // Reset rotation and position
+                transform.rotation = Quaternion.identity;
+                transform.position = Vector3.zero;
+                return;
+            }
 
-	private Vector3 GetMouseWorldPos()
-	{
-		Vector3 mousePoint = Mouse.current.position.ReadValue();
-		mousePoint.z = 10;
-		return Camera.main.ScreenToWorldPoint(mousePoint);
-	}
+            // Select and drag this object
+            if (hit != null && hit.transform == transform)
+            {
+                isSelected = true;
+
+                if (rotateKnob != null)
+                    rotateKnob.SetActive(true);
+
+                if (cancelKnob != null)
+                    cancelKnob.SetActive(true); 
+
+                offset = transform.position - mouseWorld;
+                isDragging = true;
+
+                return;
+            }
+
+            // Clicked elsewhere deselect
+            isSelected = false;
+
+            if (rotateKnob != null)
+                rotateKnob.SetActive(false);
+            if (cancelKnob != null)
+                cancelKnob.SetActive(false);
+        }
+
+        // Rotating
+        if (Mouse.current.leftButton.isPressed && isRotating)
+        {
+            Vector2 dir = mouseWorld - transform.position;
+            float currentAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+            float deltaAngle = currentAngle - startAngle;
+
+            transform.rotation = Quaternion.Euler(0, 0, startRotation + deltaAngle);
+        }
+
+        // Dragging
+        if (Mouse.current.leftButton.isPressed && isDragging)
+        {
+            Vector3 newPos = mouseWorld + offset;
+            transform.position = new Vector3(newPos.x, newPos.y, 0);
+        }
+
+        // Mouse Up
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
+        {
+            isDragging = false;
+            isRotating = false;
+        }
+    }
+
+    private Vector3 GetMouseWorldPos()
+    {
+        Vector3 mousePoint = Mouse.current.position.ReadValue();
+        mousePoint.z = 10;
+        return Camera.main.ScreenToWorldPoint(mousePoint);
+    }
 }
