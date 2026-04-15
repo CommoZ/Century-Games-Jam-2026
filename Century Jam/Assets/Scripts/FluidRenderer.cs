@@ -30,12 +30,29 @@ public class FluidRenderer : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (fluid.ParticleCount == 0)
-            return;
-
         mainCam = Camera.main;
         if (mainCam == null)
             return;
+
+        // When there are no particles, hide the display quad so the last
+        // rendered frame doesn't stay stuck on screen after a clear.
+        if (fluid.ParticleCount == 0)
+        {
+            if (displayQuad != null)
+            {
+                MeshRenderer mr = displayQuad.GetComponent<MeshRenderer>();
+                if (mr != null && mr.enabled)
+                    mr.enabled = false;
+            }
+            return;
+        }
+
+        if (displayQuad != null)
+        {
+            MeshRenderer mr = displayQuad.GetComponent<MeshRenderer>();
+            if (mr != null && !mr.enabled)
+                mr.enabled = true;
+        }
 
         EnsureRenderTexture();
         RenderMetaballs();

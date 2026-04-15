@@ -70,6 +70,14 @@ public class SPHFluid2D : MonoBehaviour
     [SerializeField] private float boundaryDamping = 0.125f;
     [SerializeField] private bool useTopBounds = false;
 
+    [Header("Cull Offscreen Particles")]
+    [Tooltip("If true, particles outside the main camera view are removed from the simulation.")]
+    [SerializeField] private bool cullOffscreen = true;
+    [Tooltip("Extra margin (in world units) outside the camera view before a particle is killed.")]
+    [SerializeField] private float cullMargin = 1.0f;
+    [Tooltip("How often (seconds) to check for offscreen particles. 0 = every physics step.")]
+    [SerializeField] private float cullCheckInterval = 0.1f;
+
     [Header("Collider Interaction")]
     [SerializeField] private LayerMask wallLayerMask = 0;
     [SerializeField] private float wallCollisionRadius = 0.05f;
@@ -97,9 +105,12 @@ public class SPHFluid2D : MonoBehaviour
     private readonly List<Vector2> preStepPositions = new List<Vector2>();
     private float spawnAccumulator;
     private float streamTimer;
+    private float cullTimer;
+    private Camera cullCamera;
 
     public int ParticleCount => particles.Count;
     public List<FluidParticle> Particles => particles;
+    public bool StreamFinished => streamEnabled && streamDuration > 0f && streamTimer >= streamDuration;
 
     private float SupportRadius => Mathf.Max(MinRadius, smoothingRadius);
     private float SupportRadiusSqr => SupportRadius * SupportRadius;
@@ -124,6 +135,9 @@ public class SPHFluid2D : MonoBehaviour
         for (int step = 0; step < steps; step++)
             StepSimulation();
 
+        if (cullOffscreen)
+            CullOffscreenParticles();
+
         UpdateVisuals();
     }
 
@@ -141,6 +155,36 @@ public class SPHFluid2D : MonoBehaviour
     {
         streamEnabled = false;
         streamDuration = 0.0f; // Stop the stream immediately
+    }
+
+    private void CullOffscreenParticles()
+    {
+        cullTimer += Time.fixedDeltaTime;
+        if (cullTimer < cullCheckInterval)
+            return;
+        cullTimer = 0f;
+
+        if (cullCamera == null)
+            cullCamera = Camera.main;
+        if (cullCamera == null)
+            return;
+
+        // Compute camera world-space bounds (orthographic)
+        float halfH = cullCamera.orthographicSize + cullMargin;
+        float halfW = cullCamera.orthographicSize * cullCamera.aspect + cullMargin;
+        Vector2 camPos = cullCamera.transform.position;
+        float minX = camPos.x - halfW;
+        float maxX = camPos.x + halfW;
+        float minY = camPos.y - halfH;
+        float maxY = camPos.y + halfH;
+
+        // Iterate backwards because RemoveParticle uses swap-remove
+        for (int i = particles.Count - 1; i >= 0; i--)
+        {
+            Vector2 pos = particles[i].position;
+            if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY)
+                RemoveParticle(i);
+        }
     }
 
     private void StepSimulation()
@@ -664,6 +708,50 @@ public class SPHFluid2D : MonoBehaviour
         }
     }
 
+    public void AddForce(int index, Vector2 force)
+    {
+        if (index < 0 || index >= particles.Count)
+            return;
+
+        FluidParticle p = particles[index];
+        p.force += force;
+        particles[index] = p;
+    }
+
+    public void RemoveParticle(int index)
+    {
+        if (index < 0 || index >= particles.Count)
+            return;
+
+        if (index < particleVisuals.Count && particleVisuals[index] != null)
+            Destroy(particleVisuals[index].gameObject);
+
+        int last = particles.Count - 1;
+
+        // Swap-remove for O(1) deletion
+        particles[index] = particles[last];
+        particles.RemoveAt(last);
+
+        if (particleVisuals.Count > 0)
+        {
+            particleVisuals[index] = particleVisuals[particleVisuals.Count - 1];
+            particleVisuals.RemoveAt(particleVisuals.Count - 1);
+        }
+        if (particleRenderers.Count > 0)
+        {
+            particleRenderers[index] = particleRenderers[particleRenderers.Count - 1];
+            particleRenderers.RemoveAt(particleRenderers.Count - 1);
+        }
+        if (index < preStepPositions.Count && preStepPositions.Count > 0)
+        {
+            preStepPositions[index] = preStepPositions[preStepPositions.Count - 1];
+            preStepPositions.RemoveAt(preStepPositions.Count - 1);
+        }
+
+        // Force neighbor storage rebuild next step
+        particleNeighbors = new List<Neighbor>[0];
+    }
+
     public void ResetStreamTimer()
     {
         streamTimer = 0.0f;
@@ -694,16 +782,15 @@ public class SPHFluid2D : MonoBehaviour
         // Stop spawning new particles
         streamEnabled = false;
 
-        // Destroy all particle visuals
-        for (int i = 0; i < particleVisuals.Count; i++)
+        // Remove every particle via the same swap-remove path that
+        // CullOffscreenParticles uses. Iterate backwards because
+        // RemoveParticle shrinks the list from the end.
+        for (int i = particles.Count - 1; i >= 0; i--)
         {
-            if (particleVisuals[i] != null)
-            {
-                Destroy(particleVisuals[i].gameObject);
-            }
+            RemoveParticle(i);
         }
 
-        // Clear all simulation data
+        // Safety: force-clear any stragglers in case lists got desynced
         particles.Clear();
         particleVisuals.Clear();
         particleRenderers.Clear();
