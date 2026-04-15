@@ -7,7 +7,10 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    [SerializeField] private GameObject fluid;
+    [Tooltip("All fluid simulations in the level (water, lava, etc). The game manager enables/disables all of them together.")]
+    [SerializeField] private SPHFluid2D[] fluids;
+    [Tooltip("Lava/water interaction manager. Auto-found if left empty. Used to clean up spawned rocks on reset.")]
+    [SerializeField] private LavaWaterInteraction lavaWaterInteraction;
     [SerializeField] private GameObject resetButton;
     [SerializeField] private GameObject clearButton;
     [SerializeField] private TextMeshProUGUI time;
@@ -28,7 +31,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        fluid = GameObject.Find("particleScript");
+        // Auto-populate if the array wasn't set in the inspector
+        if (fluids == null || fluids.Length == 0)
+            fluids = FindObjectsOfType<SPHFluid2D>();
+
+        if (lavaWaterInteraction == null)
+            lavaWaterInteraction = FindObjectOfType<LavaWaterInteraction>();
         //pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
     }
 
@@ -50,11 +58,14 @@ public class GameManager : MonoBehaviour
 
         timePassed = 0.0f;
 
-        SPHFluid2D fluidScript = fluid.GetComponent<SPHFluid2D>();
-        if (fluidScript != null)
+        if (fluids != null)
         {
-            fluidScript.enabled = true;
-            fluidScript.startGame();
+            for (int i = 0; i < fluids.Length; i++)
+            {
+                if (fluids[i] == null) continue;
+                fluids[i].enabled = true;
+                fluids[i].startGame();
+            }
         }
 
         GameObject[] pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
@@ -75,19 +86,28 @@ public class GameManager : MonoBehaviour
     // RED BUTTON
     public void onRedButtonPress()
     {
-        SPHFluid2D fluidScript = fluid.GetComponent<SPHFluid2D>();
-
-        // CASE 1: Game is running then STOP
+        // CASE 1: Game is running then STOP (freeze, do NOT clear)
         if (isPlaying)
         {
             isPlaying = false;
 
-            if (fluidScript != null)
+            if (fluids != null)
             {
-                //fluidScript.stopGame();
-                fluidScript.ClearParticles();
-                fluidScript.enabled = false;
+                for (int i = 0; i < fluids.Length; i++)
+                {
+                    if (fluids[i] == null) continue;
+                    // Stop the stream so no new particles spawn, and clear
+                    // any existing particles in the simulation.
+                    fluids[i].ClearParticles();
+                    fluids[i].stopGame();
+                    fluids[i].enabled = false;
+                }
             }
+
+            // Clean up rocks spawned by water/lava contact
+            if (lavaWaterInteraction != null)
+                lavaWaterInteraction.ClearRocks();
+
             GameObject[] pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
             foreach (GameObject pipe in pipesArray)
             {
@@ -102,9 +122,10 @@ public class GameManager : MonoBehaviour
             resetButton.SetActive(false);
             clearButton.SetActive(true);
         }
-        // CASE 2: Game NOT running then CLEAR
+        // CASE 2: Game NOT running then CLEAR (reset everything)
         else
         {
+            // Destroy all pipes
             GameObject[] pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
             foreach (GameObject pipe in pipesArray)
             {
