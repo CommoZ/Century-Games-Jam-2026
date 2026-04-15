@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: WaterThresholdMat
-  m_Shader: {fileID: 4800000, guid: e260cfa7296ee7642b167f1eb5be5023, type: 3}
+  m_Shader: {fileID: 4800000, guid: 1b33f9ebb29eace4cb7094b9c11920d2, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -41,10 +41,20 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _DepthContrast: 2
+    - _EdgeSmooth: 0.05
+    - _EdgeWidth: 0.06
     - _EnableExternalAlpha: 0
+    - _FlowIntensity: 1
+    - _Threshold: 0.3
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DeepColor: {r: 0.049999982, g: 0.29999998, b: 0.8, a: 0.9}
+    - _EdgeColor: {r: 0.6, g: 0.95, b: 1, a: 1}
+    - _FlowHighlightColor: {r: 0.7, g: 0.95, b: 1, a: 0.8}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ShallowColor: {r: 0.29999998, g: 0.85, b: 1, a: 0.7}
+    - _WaterColor: {r: 0.14999998, g: 0.5, b: 0.95, a: 0.9}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

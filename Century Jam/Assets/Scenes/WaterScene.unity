@@ -567,6 +567,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1197315533 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2082903104086041629, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+  m_PrefabInstance: {fileID: 511694215856467982}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1197315536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197315533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4419c92d397ab049bf9cc7a75952c4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FluidRenderer
+  metaballParticleMaterial: {fileID: 2100000, guid: 4ab8296b1fdc46c4eaffa9453e414bcf, type: 2}
+  waterThresholdMaterial: {fileID: 2100000, guid: feb4b2e18c382c34a9910b980ea083b2, type: 2}
+  particleRenderSize: 0.5
+  velocityStretch: 3
+  maxStretch: 2
+  renderTextureScale: 1
+  sortingOrder: 10
 --- !u!1 &1533607973
 GameObject:
   m_ObjectHideFlags: 0
@@ -845,9 +869,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+      propertyPath: stiffness
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
       propertyPath: streamSource
       value: 
       objectReference: {fileID: 2001464864}
+    - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+      propertyPath: surfaceTension
+      value: 0.005
+      objectReference: {fileID: 0}
+    - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+      propertyPath: nearPressureMultiplier
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2607400123879881613, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+      propertyPath: streamParticlesPerSecond
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 6469183019846635217, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
       propertyPath: m_Name
       value: ParticleBatch
@@ -855,7 +895,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2082903104086041629, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1197315536}
   m_SourcePrefab: {fileID: 100100000, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
