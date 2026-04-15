@@ -15,10 +15,11 @@ public class DraggablePipe : MonoBehaviour
 		// Mouse Down
 		if (Mouse.current.leftButton.wasPressedThisFrame)
 		{
-			if (GameManager.instance.isFlowing) return;
+			//if (GameManager.instance.isFlowing) return;
 
-			Collider2D col = GetComponent<Collider2D>();
-			if (col == Physics2D.OverlapPoint(mouseWorld))
+			Collider2D hit = Physics2D.OverlapPoint(mouseWorld);
+
+			if (hit != null && hit.transform == transform)
 			{
 				offset = transform.position - mouseWorld;
 				isDragging = true;
@@ -37,12 +38,12 @@ public class DraggablePipe : MonoBehaviour
 		{
 			isDragging = false;
 
-			float cellSize = 1f;
+			//float cellSize = 1f;
 
-			float x = Mathf.Floor(transform.position.x / cellSize) * cellSize + cellSize / 2f;
-			float y = Mathf.Floor(transform.position.y / cellSize) * cellSize + cellSize / 2f;
+			//float x = Mathf.Floor(transform.position.x / cellSize) * cellSize + cellSize / 2f;
+			//float y = Mathf.Floor(transform.position.y / cellSize) * cellSize + cellSize / 2f;
 
-			transform.position = new Vector3(x, y, 0);
+			//transform.position = new Vector3(x, y, 0);
 		}
 	}
 
