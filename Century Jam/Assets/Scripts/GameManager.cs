@@ -3,19 +3,17 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // The Singleton instance
     public static GameManager instance;
 
-    [Header("Game State")]
-    public bool isFlowing = false;
-    public float currentPressure = 100f;
+    [SerializeField] private GameObject fluid;
+    [SerializeField] private GameObject resetButton;
+    [SerializeField] private GameObject clearButton;
 
-    [Header("Settings")]
-    public float startingPressure = 100f;
+    private GameObject[] pipesArray;
+    private bool isPlaying = false;
 
     void Awake()
     {
-        // Make sure there's only one GameManager
         if (instance == null)
         {
             instance = this;
@@ -26,29 +24,82 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void StartGameFlow()
+    void Start()
     {
-        if (isFlowing) return;
-
-        isFlowing = true;
-        currentPressure = startingPressure;
-        Debug.Log("Water is now pouring!");
-
-        // This is where you will call your "Pathfinding" logic later
+        fluid = GameObject.Find("particleScript");
+        //pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
     }
 
-    public void EndGame(bool won)
+    // START GAME
+    public void onGreenButtonPress()
     {
-        isFlowing = false;
-        if (won)
+        if (isPlaying) return;
+
+        isPlaying = true;
+
+        SPHFluid2D fluidScript = fluid.GetComponent<SPHFluid2D>();
+        if (fluidScript != null)
         {
-            Debug.Log("You Win! Score: " + currentPressure);
-            // Show Win UI and calculate Stars
+            fluidScript.enabled = true;
+            fluidScript.startGame();
         }
+
+        GameObject[] pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
+        foreach (GameObject pipe in pipesArray)
+        {
+            DraggablePipe pipeScript = pipe.GetComponent<DraggablePipe>();
+            if (pipeScript != null)
+            {
+                pipeScript.enabled = false;
+                pipeScript.startGame();
+            }
+        }
+
+        resetButton.SetActive(true);
+        clearButton.SetActive(false);
+    }
+
+    // RED BUTTON
+    public void onRedButtonPress()
+    {
+        SPHFluid2D fluidScript = fluid.GetComponent<SPHFluid2D>();
+
+        // CASE 1: Game is running then STOP
+        if (isPlaying)
+        {
+            isPlaying = false;
+
+            if (fluidScript != null)
+            {
+                //fluidScript.stopGame();
+                fluidScript.ClearParticles();
+                fluidScript.enabled = false;
+            }
+            GameObject[] pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
+            foreach (GameObject pipe in pipesArray)
+            {
+                DraggablePipe pipeScript = pipe.GetComponent<DraggablePipe>();
+                if (pipeScript != null)
+                {
+                    pipeScript.enabled = true;   // allow editing again
+                    pipeScript.resetGame();
+                }
+            }
+
+            resetButton.SetActive(false);
+            clearButton.SetActive(true);
+        }
+        // CASE 2: Game NOT running then CLEAR
         else
         {
-            Debug.Log("Game Over! Pressure lost.");
-            // Show Loss UI
+            GameObject[] pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
+            foreach (GameObject pipe in pipesArray)
+            {
+                Destroy(pipe);
+            }
+
+            // Refresh pipe array
+            pipesArray = new GameObject[0];
         }
     }
 }

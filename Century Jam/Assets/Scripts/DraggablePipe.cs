@@ -11,6 +11,12 @@ public class DraggablePipe : MonoBehaviour
 
     [SerializeField] private GameObject rotateKnob;
     [SerializeField] private GameObject cancelKnob;
+    [SerializeField] private GameObject transparentSprite;
+    [SerializeField] private GameObject borderSprite;
+
+    public enum PipeType { Straight, Elbow, T };
+    [SerializeField] public PipeType pipeType;
+
     private Collider2D rotateKnobCollider;
     private Collider2D cancelKnobCollider;
     private float startAngle;
@@ -27,6 +33,10 @@ public class DraggablePipe : MonoBehaviour
         {
             cancelKnobCollider = cancelKnob.GetComponent<Collider2D>();
             cancelKnob.SetActive(false);
+        }
+        if (transparentSprite != null)
+        {
+            transparentSprite.SetActive(false);
         }
     }
 
@@ -55,9 +65,8 @@ public class DraggablePipe : MonoBehaviour
 
             if (isSelected && cancelKnobCollider != null && hit == cancelKnobCollider)
             {
-                // Reset rotation and position
-                transform.rotation = Quaternion.identity;
-                transform.position = Vector3.zero;
+                // Pay system
+                Destroy(gameObject);
                 return;
             }
 
@@ -72,6 +81,9 @@ public class DraggablePipe : MonoBehaviour
                 if (cancelKnob != null)
                     cancelKnob.SetActive(true);
 
+                if (borderSprite != null)
+                    borderSprite.SetActive(true);
+
                 offset = transform.position - mouseWorld;
                 isDragging = true;
 
@@ -85,6 +97,10 @@ public class DraggablePipe : MonoBehaviour
                 rotateKnob.SetActive(false);
             if (cancelKnob != null)
                 cancelKnob.SetActive(false);
+            if (borderSprite != null)
+            {
+                borderSprite.SetActive(false);
+            }
         }
 
         // Rotating
@@ -110,6 +126,40 @@ public class DraggablePipe : MonoBehaviour
         {
             isDragging = false;
             isRotating = false;
+        }
+    }
+
+    public void startGame()
+    {
+        isDragging = false;
+        isRotating = false;
+        isSelected = false;
+        if (rotateKnob != null)
+            rotateKnob.SetActive(false);
+        if (cancelKnob != null)
+            cancelKnob.SetActive(false);
+        if (borderSprite != null)
+            borderSprite.SetActive(false);
+        if (transparentSprite != null)
+        {
+            transparentSprite.SetActive(true);
+        }    
+    }
+
+    public void resetGame()
+    {
+        isDragging = false;
+        isRotating = false;
+        isSelected = false;
+        if (rotateKnob != null)
+            rotateKnob.SetActive(false);
+        if (cancelKnob != null)
+            cancelKnob.SetActive(false);
+        if (borderSprite != null)
+            borderSprite.SetActive(false);
+        if (transparentSprite != null)
+        {
+            transparentSprite.SetActive(false);
         }
     }
 

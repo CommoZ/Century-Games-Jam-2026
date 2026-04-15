@@ -105,6 +105,7 @@ public class SPHFluid2D : MonoBehaviour
     private float SupportRadiusSqr => SupportRadius * SupportRadius;
     private float NearPressureWeight => stiffness * nearPressureMultiplier;
 
+
     private void Start()
     {
         if (spawnInitialBlock)
@@ -124,6 +125,22 @@ public class SPHFluid2D : MonoBehaviour
             StepSimulation();
 
         UpdateVisuals();
+    }
+
+    public void startGame()
+    {
+        if (streamEnabled == false)
+        {
+            streamDuration = 5.0f; // Example: stream for 5 seconds when the button is pressed
+            streamTimer = 0.0f; // Reset the stream timer
+            streamEnabled = true;
+        }
+    }
+
+    public void stopGame()
+    {
+        streamEnabled = false;
+        streamDuration = 0.0f; // Stop the stream immediately
     }
 
     private void StepSimulation()
@@ -670,5 +687,31 @@ public class SPHFluid2D : MonoBehaviour
 
         if (spawnInitialBlock)
             SpawnBlock();
+    }
+
+    public void ClearParticles()
+    {
+        // Stop spawning new particles
+        streamEnabled = false;
+
+        // Destroy all particle visuals
+        for (int i = 0; i < particleVisuals.Count; i++)
+        {
+            if (particleVisuals[i] != null)
+            {
+                Destroy(particleVisuals[i].gameObject);
+            }
+        }
+
+        // Clear all simulation data
+        particles.Clear();
+        particleVisuals.Clear();
+        particleRenderers.Clear();
+        particleNeighbors = new List<Neighbor>[0];
+
+        // Reset simulation state
+        spawnAccumulator = 0.0f;
+        streamTimer = 0.0f;
+        preStepPositions.Clear();
     }
 }
