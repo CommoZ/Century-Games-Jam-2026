@@ -13,7 +13,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LavaWaterInteraction lavaWaterInteraction;
     [SerializeField] private GameObject resetButton;
     [SerializeField] private GameObject clearButton;
+
+    [SerializeField] private GameObject pipeButtons;
+    [SerializeField] private GameObject playAnimation;
     [SerializeField] private TextMeshProUGUI time;
+    [SerializeField] private TextMeshProUGUI winTime;
+
 
     [Header("Victory")]
     [Tooltip("UI panel to show when the water collector reaches 100%.")]
@@ -53,6 +58,8 @@ public class GameManager : MonoBehaviour
         {
             timePassed += Time.deltaTime;
             time.text = timePassed.ToString("F2");
+            winTime.text = timePassed.ToString("F2");
+            playAnimation.transform.Rotate(0, 0, -(Time.deltaTime * 100.0f));
         }
     }
 
@@ -89,7 +96,7 @@ public class GameManager : MonoBehaviour
                 pipeScript.startGame();
             }
         }
-
+        pipeButtons.SetActive(false);
         resetButton.SetActive(true);
         clearButton.SetActive(false);
     }
@@ -130,6 +137,8 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            playAnimation.transform.rotation = Quaternion.Euler(0, 0, 0);
+            pipeButtons.SetActive(true);
             resetButton.SetActive(false);
             clearButton.SetActive(true);
         }
@@ -171,5 +180,6 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("MainMenu");
     }
-
+    
+   
 }
