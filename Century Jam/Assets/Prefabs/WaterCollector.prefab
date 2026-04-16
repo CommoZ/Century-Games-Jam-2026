@@ -151,8 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterCollector
   fluids: []
-  detectionSize: {x: 0.9, y: 1}
-  detectionOffset: {x: 0, y: 0}
+  detectionSize: {x: 1.53, y: 2.07}
+  detectionOffset: {x: 0, y: -0.03}
   capacity: 20
   showDebugCounter: 0
   counterFontSize: 3
