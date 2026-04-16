@@ -642,6 +642,10 @@ PrefabInstance:
       propertyPath: m_LocalAABB.m_Extent.y
       value: 2.414503
       objectReference: {fileID: 0}
+    - target: {fileID: 1103564412095900413, guid: 92b278cf234ef8b49909c7ef81c4e7a8, type: 3}
+      propertyPath: 'm_Sprites.Array.data[10]'
+      value: 
+      objectReference: {fileID: 21300000, guid: 527333cf76ee76342a6e5cc9f679bc64, type: 3}
     - target: {fileID: 1257987469242601719, guid: 92b278cf234ef8b49909c7ef81c4e7a8, type: 3}
       propertyPath: m_Creator
       value: 
@@ -1214,6 +1218,10 @@ PrefabInstance:
       propertyPath: m_LocalAABB.m_Extent.y
       value: 2.6745663
       objectReference: {fileID: 0}
+    - target: {fileID: 1103564412095900413, guid: 92b278cf234ef8b49909c7ef81c4e7a8, type: 3}
+      propertyPath: 'm_Sprites.Array.data[10]'
+      value: 
+      objectReference: {fileID: 21300000, guid: 527333cf76ee76342a6e5cc9f679bc64, type: 3}
     - target: {fileID: 1257987469242601719, guid: 92b278cf234ef8b49909c7ef81c4e7a8, type: 3}
       propertyPath: m_Creator
       value: 
@@ -1745,6 +1753,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
+      propertyPath: nextLevelScene
+      value: 
+      objectReference: {fileID: 102900000, guid: 4c07a781ab7e56f48a82bd432769c617, type: 3}
     - target: {fileID: 7608554116564514878, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: m_Name
       value: GameManager

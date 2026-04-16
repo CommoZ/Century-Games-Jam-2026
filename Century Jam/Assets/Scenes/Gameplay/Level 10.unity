@@ -1358,7 +1358,7 @@ PrefabInstance:
     - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: nextLevelScene
       value: 
-      objectReference: {fileID: 102900000, guid: 6fe24c965512f844a8b63b2f8393987b, type: 3}
+      objectReference: {fileID: 102900000, guid: 8c29f81a2803cea47bf0a7c5db19cf1f, type: 3}
     - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: maxTimeForStar3
       value: 15
