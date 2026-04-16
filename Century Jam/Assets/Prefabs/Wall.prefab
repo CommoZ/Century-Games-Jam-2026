@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1103564412095900413}
   - component: {fileID: 1257987469242601719}
   - component: {fileID: 2768640431360967487}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,8 +100,8 @@ SpriteShapeRenderer:
   - {fileID: 21300000, guid: 7debf5da30c07444fb316bbbfa4df4a8, type: 3}
   - {fileID: 21300000, guid: 24b72c7b8660f404181422637802736a, type: 3}
   m_LocalAABB:
-    m_Center: {x: 0.24098134, y: 0.15715957, z: 0}
-    m_Extent: {x: 3.130349, y: 2.0346155, z: 0}
+    m_Center: {x: 0.47729897, y: -0.021141887, z: 0}
+    m_Extent: {x: 2.89471, y: 1.4556346, z: 0}
   m_SpriteSortPoint: 0
 --- !u!114 &1257987469242601719
 MonoBehaviour:
@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Spline:
     m_IsOpenEnded: 0
     m_ControlPoints:
-    - position: {x: -1.6257954, y: -1.353751, z: 0}
+    - position: {x: -1.9109292, y: -0.943872, z: 0}
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
@@ -126,23 +126,7 @@ MonoBehaviour:
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
-    - position: {x: -2.4070797, y: -0.13934791, z: 0}
-      leftTangent: {x: 0, y: 0, z: 0}
-      rightTangent: {x: 0, y: 0, z: 0}
-      mode: 0
-      height: 1
-      spriteIndex: 0
-      corner: 1
-      m_CornerMode: 1
-    - position: {x: -2.1452048, y: 0.8180825, z: 0}
-      leftTangent: {x: 0, y: 0, z: 0}
-      rightTangent: {x: 0, y: 0, z: 0}
-      mode: 0
-      height: 1
-      spriteIndex: 0
-      corner: 1
-      m_CornerMode: 1
-    - position: {x: -1.9044034, y: 1.698466, z: 0}
+    - position: {x: -1.8865831, y: 0.93217, z: 0}
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
@@ -188,14 +172,11 @@ MonoBehaviour:
   m_Creator: {fileID: 0}
   m_Modifiers: []
   m_ColliderSegment:
-  - {x: -1.8837781, y: -1.877456}
-  - {x: -2.8275785, y: -0.40986764}
-  - {x: -2.8860285, y: 0.00476408}
-  - {x: -2.3866885, y: 1.8303789}
-  - {x: -1.8228791, y: 2.1917748}
-  - {x: 3.3713305, y: 1.3333881}
-  - {x: 3.3462856, y: -1.4333645}
-  - {x: -1.8837781, y: -1.877456}
+  - {x: -2.417411, y: -1.4407122}
+  - {x: -2.3801062, y: 1.4344928}
+  - {x: 3.3720093, y: 1.4075114}
+  - {x: 3.3458924, y: -1.4767765}
+  - {x: -2.417411, y: -1.4407122}
   m_ShadowSegment: []
 --- !u!60 &2768640431360967487
 PolygonCollider2D:
@@ -243,12 +224,9 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -1.8837781, y: -1.877456}
-      - {x: -2.8275785, y: -0.40986764}
-      - {x: -2.8860285, y: 0.00476408}
-      - {x: -2.3866885, y: 1.8303789}
-      - {x: -1.8228791, y: 2.1917748}
-      - {x: 3.3713305, y: 1.3333881}
-      - {x: 3.3462856, y: -1.4333645}
-      - {x: -1.8837781, y: -1.877456}
+    - - {x: -2.417411, y: -1.4407122}
+      - {x: -2.3801062, y: 1.4344928}
+      - {x: 3.3720093, y: 1.4075114}
+      - {x: 3.3458924, y: -1.4767765}
+      - {x: -2.417411, y: -1.4407122}
   m_UseDelaunayMesh: 1
