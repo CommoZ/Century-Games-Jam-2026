@@ -15,7 +15,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject clearButton;
     [SerializeField] private TextMeshProUGUI time;
 
+    [Header("Victory")]
+    [Tooltip("UI panel to show when the water collector reaches 100%.")]
+    [SerializeField] private GameObject victoryUI;
+
     private bool isPlaying = false;
+    private bool hasWon = false;
     private float timePassed = 0.0f;
     void Awake()
     {
@@ -37,7 +42,9 @@ public class GameManager : MonoBehaviour
 
         if (lavaWaterInteraction == null)
             lavaWaterInteraction = FindObjectOfType<LavaWaterInteraction>();
-        //pipesArray = GameObject.FindGameObjectsWithTag("Pipe");
+
+        if (victoryUI != null)
+            victoryUI.SetActive(false);
     }
 
     private void Update()
@@ -55,8 +62,12 @@ public class GameManager : MonoBehaviour
         if (isPlaying) return;
 
         isPlaying = true;
+        hasWon = false;
 
         timePassed = 0.0f;
+
+        if (victoryUI != null)
+            victoryUI.SetActive(false);
 
         if (fluids != null)
         {
@@ -137,6 +148,23 @@ public class GameManager : MonoBehaviour
             // Refresh pipe array
             pipesArray = new GameObject[0];
         }
+    }
+
+    /// <summary>
+    /// Called by WaterCollector's onFilled event when the collector reaches 100%.
+    /// </summary>
+    public void OnVictory()
+    {
+        if (hasWon || !isPlaying)
+            return;
+
+        hasWon = true;
+        isPlaying = false;
+
+        Debug.Log($"Victory! Time: {timePassed:F2}s");
+
+        if (victoryUI != null)
+            victoryUI.SetActive(true);
     }
 
     public void onExitButtonPress()

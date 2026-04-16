@@ -55,7 +55,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DeepColor: {r: 0.049999982, g: 0.29999998, b: 0.8, a: 0.9}
     - _EdgeColor: {r: 0.6, g: 0.95, b: 1, a: 1}
-    - _EmissionColor: {r: 0.44941178, g: 1.1984314, b: 2.9960785, a: 1}
+    - _EmissionColor: {r: 0.22470589, g: 0.5992157, b: 1.4980392, a: 1}
     - _FlowHighlightColor: {r: 0.7, g: 0.95, b: 1, a: 0.8}
     - _GlowColor: {r: 0.19999996, g: 0.6, b: 1, a: 0.5}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}

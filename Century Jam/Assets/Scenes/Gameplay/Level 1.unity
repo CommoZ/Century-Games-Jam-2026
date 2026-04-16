@@ -382,6 +382,7 @@ MonoBehaviour:
   resetButton: {fileID: 7982281228327224309}
   clearButton: {fileID: 3649966386114394404}
   time: {fileID: 1812082070057830609}
+  victoryUI: {fileID: 0}
 --- !u!4 &381572981
 Transform:
   m_ObjectHideFlags: 0
@@ -502,7 +503,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 809778119}
-  - component: {fileID: 809778118}
   - component: {fileID: 809778117}
   - component: {fileID: 809778120}
   m_Layer: 0
@@ -525,60 +525,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WindMachine
   windEnabled: 1
-  windDirection: {x: 0, y: 1}
+  shape: 1
   windStrength: 0.02
-  falloffWithDistance: 1
-  falloffDistance: 4
+  windRange: 5
+  coneHalfAngle: 10
+  rectWidth: 2
   oscillationAngle: 0
   oscillationSpeed: 0.5
-  windVisualMaterial: {fileID: 0}
+  windVisualMaterial: {fileID: 2100000, guid: f689df7a2542b524390b9513c8fb715e, type: 2}
   visualSortingOrder: 8
---- !u!61 &809778118
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 809778116}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.86582464, y: 0.8648649}
-    newSize: {x: 0.86582464, y: 0.8648649}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!4 &809778119
 Transform:
   m_ObjectHideFlags: 0
@@ -588,7 +543,7 @@ Transform:
   m_GameObject: {fileID: 809778116}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.89, y: -3.54, z: 0}
+  m_LocalPosition: {x: -7.53, y: -0.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1536,6 +1491,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1001 &2853867094600381545
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6818460382662437, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_Name
+      value: WaterCollector
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.99
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8441070049950523661, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
 --- !u!1 &3649966386114394404 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1827612924073564144, guid: 4f1c49af1cf617345a708217fc97caa0, type: 3}
@@ -1677,3 +1689,4 @@ SceneRoots:
   - {fileID: 381572981}
   - {fileID: 709245964}
   - {fileID: 809778119}
+  - {fileID: 2853867094600381545}
