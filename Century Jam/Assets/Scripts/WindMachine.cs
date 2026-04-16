@@ -30,6 +30,10 @@ public class WindMachine : MonoBehaviour
     [SerializeField] private Material windVisualMaterial;
     [SerializeField] private int visualSortingOrder = 8;
 
+    [Header("Pipe Blocking")]
+    [Tooltip("If true, pipes block wind from reaching particles behind them.")]
+    [SerializeField] private bool pipesBlockWind = true;
+
     private SPHFluid2D[] allFluids;
     private float oscillationTimer;
     private GameObject visualQuad;
@@ -137,18 +141,108 @@ public class WindMachine : MonoBehaviour
         if (!windEnabled || allFluids == null)
             return;
 
+        // Only apply wind while the game is actively playing
+        if (GameManager.instance == null || !GameManager.instance.IsPlaying)
+            return;
+
         if (shape == WindShape.Cone)
             ApplyConWind();
         else
             ApplyRectWind();
     }
 
+    // Per-pipe shadow in wind coordinates: wind is blocked from alongMin onward
+    // within the perpendicular span [perpMin, perpMax].
+    private struct PipeShadow
+    {
+        public float alongMin;  // near edge of pipe along wind direction
+        public float perpMin;   // left edge perpendicular to wind
+        public float perpMax;   // right edge perpendicular to wind
+    }
+
+    private PipeShadow[] pipeShadows;
+    private int pipeShadowCount;
+
+    /// <summary>
+    /// Project all pipe collider bounds into the wind's coordinate system.
+    /// Each pipe creates a shadow: wind is blocked from the pipe's near edge
+    /// onward, within the pipe's perpendicular width.
+    /// </summary>
+    private void RefreshPipeShadows(Vector2 origin, Vector2 forward, Vector2 perp)
+    {
+        GameObject[] pipes = GameObject.FindGameObjectsWithTag("Pipe");
+
+        // Count total colliders
+        int total = 0;
+        for (int i = 0; i < pipes.Length; i++)
+            total += pipes[i].GetComponentsInChildren<Collider2D>().Length;
+
+        if (pipeShadows == null || pipeShadows.Length < total)
+            pipeShadows = new PipeShadow[Mathf.Max(total, 8)];
+
+        pipeShadowCount = 0;
+        for (int i = 0; i < pipes.Length; i++)
+        {
+            Collider2D[] cols = pipes[i].GetComponentsInChildren<Collider2D>();
+            for (int c = 0; c < cols.Length; c++)
+            {
+                if (cols[c] == null) continue;
+                Bounds b = cols[c].bounds;
+
+                // Project all 4 AABB corners into wind coordinate space
+                float along0 = Vector2.Dot((Vector2)b.min - origin, forward);
+                float along1 = Vector2.Dot(new Vector2(b.max.x, b.min.y) - origin, forward);
+                float along2 = Vector2.Dot(new Vector2(b.min.x, b.max.y) - origin, forward);
+                float along3 = Vector2.Dot((Vector2)b.max - origin, forward);
+
+                float perp0 = Vector2.Dot((Vector2)b.min - origin, perp);
+                float perp1 = Vector2.Dot(new Vector2(b.max.x, b.min.y) - origin, perp);
+                float perp2 = Vector2.Dot(new Vector2(b.min.x, b.max.y) - origin, perp);
+                float perp3 = Vector2.Dot((Vector2)b.max - origin, perp);
+
+                float alongMin = Mathf.Min(along0, Mathf.Min(along1, Mathf.Min(along2, along3)));
+                float perpMin = Mathf.Min(perp0, Mathf.Min(perp1, Mathf.Min(perp2, perp3)));
+                float perpMax = Mathf.Max(perp0, Mathf.Max(perp1, Mathf.Max(perp2, perp3)));
+
+                // Only keep shadows that are in front of the wind source
+                if (alongMin < 0f) alongMin = 0f;
+
+                pipeShadows[pipeShadowCount++] = new PipeShadow
+                {
+                    alongMin = alongMin,
+                    perpMin = perpMin,
+                    perpMax = perpMax
+                };
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns true if a particle at (alongDist, acrossDist) in wind coordinates
+    /// is in the shadow of any pipe (at or beyond the pipe's near edge, within its width).
+    /// </summary>
+    private bool IsInPipeShadow(float alongDist, float acrossDist)
+    {
+        for (int i = 0; i < pipeShadowCount; i++)
+        {
+            PipeShadow s = pipeShadows[i];
+            if (alongDist >= s.alongMin &&
+                acrossDist >= s.perpMin && acrossDist <= s.perpMax)
+                return true;
+        }
+        return false;
+    }
+
     private void ApplyConWind()
     {
         Vector2 origin = transform.position;
         Vector2 forward = GetCurrentWindDirection();
+        Vector2 perp = new Vector2(-forward.y, forward.x);
         float cosThreshold = Mathf.Cos(coneHalfAngle * Mathf.Deg2Rad);
         float rangeSqr = windRange * windRange;
+
+        if (pipesBlockWind)
+            RefreshPipeShadows(origin, forward, perp);
 
         for (int f = 0; f < allFluids.Length; f++)
         {
@@ -168,6 +262,14 @@ public class WindMachine : MonoBehaviour
                 float dot = Vector2.Dot(dir, forward);
                 if (dot < cosThreshold) continue;
 
+                // Skip if particle is in the shadow behind a pipe
+                if (pipesBlockWind)
+                {
+                    float alongDist = Vector2.Dot(toParticle, forward);
+                    float acrossDist = Vector2.Dot(toParticle, perp);
+                    if (IsInPipeShadow(alongDist, acrossDist)) continue;
+                }
+
                 float distanceFalloff = 1.0f - (dist / windRange);
                 float coneFalloff = (dot - cosThreshold) / (1.0f - cosThreshold);
                 float force = windStrength * distanceFalloff * coneFalloff;
@@ -183,6 +285,9 @@ public class WindMachine : MonoBehaviour
         Vector2 forward = GetCurrentWindDirection();
         Vector2 perp = new Vector2(-forward.y, forward.x);
         float halfW = rectWidth * 0.5f;
+
+        if (pipesBlockWind)
+            RefreshPipeShadows(origin, forward, perp);
 
         for (int f = 0; f < allFluids.Length; f++)
         {
@@ -201,6 +306,9 @@ public class WindMachine : MonoBehaviour
                 // Project perpendicular (how far across)
                 float acrossDist = Vector2.Dot(toParticle, perp);
                 if (Mathf.Abs(acrossDist) > halfW) continue;
+
+                // Skip if particle is in the shadow behind a pipe
+                if (pipesBlockWind && IsInPipeShadow(alongDist, acrossDist)) continue;
 
                 // Falloff: weaker at the edges and at range end
                 float distanceFalloff = 1.0f - (alongDist / windRange);
