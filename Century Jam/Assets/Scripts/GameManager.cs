@@ -287,7 +287,7 @@ public class GameManager : MonoBehaviour
     public void onExitButtonPress()
     {
         ResetToReadyState();
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("LevelSelector");
     }
 
     /// <summary>
