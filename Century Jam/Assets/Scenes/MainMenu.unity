@@ -368,7 +368,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 650167361}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1678641993}
+        m_TargetAssemblyTypeName: LevelSelector, Assembly-CSharp
+        m_MethodName: goLevelMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &650167361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -493,6 +505,7 @@ GameObject:
   - component: {fileID: 1678641992}
   - component: {fileID: 1678641991}
   - component: {fileID: 1678641990}
+  - component: {fileID: 1678641993}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -561,6 +574,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1678641993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678641989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52ef025e35e154346abfed84258c40a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelSelector
+  buttonPrefab: {fileID: 0}
+  buttonParent: {fileID: 0}
+  numberOfLevels: 12
 --- !u!1 &2004890171
 GameObject:
   m_ObjectHideFlags: 0
