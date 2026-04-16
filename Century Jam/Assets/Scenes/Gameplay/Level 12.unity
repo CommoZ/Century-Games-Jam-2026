@@ -453,8 +453,8 @@ MonoBehaviour:
   lavaFluid: {fileID: 8900401684580479595}
   contactDistance: 0.25
   rockPrefab: {fileID: 2828871610997381282, guid: 350dd4596c87b8d4e9a03ab56b9910c2, type: 3}
-  rockSize: 0.22
-  rockColor: {r: 0.05, g: 0.03, b: 0.05, a: 1}
+  rockSize: 1.5
+  rockColor: {r: 1, g: 1, b: 1, a: 1}
   minSpawnSpacing: 0.18
   rockLayerName: Wall
 --- !u!4 &709245964

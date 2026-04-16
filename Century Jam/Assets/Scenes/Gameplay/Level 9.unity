@@ -1716,6 +1716,10 @@ PrefabInstance:
       propertyPath: nextLevelScene
       value: 
       objectReference: {fileID: 102900000, guid: 6fe24c965512f844a8b63b2f8393987b, type: 3}
+    - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
+      propertyPath: maxTimeForStar3
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7608554116564514878, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: m_Name
       value: GameManager
@@ -1736,6 +1740,10 @@ PrefabInstance:
     - target: {fileID: 6818460382662437, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
       propertyPath: m_Name
       value: WaterCollector
+      objectReference: {fileID: 0}
+    - target: {fileID: 2863743277918687701, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
+      propertyPath: capacity
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 2863743277918687701, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
       propertyPath: detectionSize.x

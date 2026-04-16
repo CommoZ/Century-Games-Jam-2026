@@ -829,8 +829,8 @@ MonoBehaviour:
   lavaFluid: {fileID: 8900401684580479595}
   contactDistance: 0.25
   rockPrefab: {fileID: 2828871610997381282, guid: 350dd4596c87b8d4e9a03ab56b9910c2, type: 3}
-  rockSize: 0.22
-  rockColor: {r: 0.05, g: 0.03, b: 0.05, a: 1}
+  rockSize: 1.5
+  rockColor: {r: 1, g: 1, b: 1, a: 1}
   minSpawnSpacing: 0.18
   rockLayerName: Wall
 --- !u!4 &709245964
@@ -1361,7 +1361,7 @@ PrefabInstance:
       objectReference: {fileID: 102900000, guid: 8c29f81a2803cea47bf0a7c5db19cf1f, type: 3}
     - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: maxTimeForStar3
-      value: 15
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: maxPipesForStar2
@@ -1390,7 +1390,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2863743277918687701, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
       propertyPath: capacity
-      value: 15
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 2863743277918687701, guid: 262c7041c38e48c4285d2e27e5336828, type: 3}
       propertyPath: onFilled.m_PersistentCalls.m_Calls.Array.size

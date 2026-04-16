@@ -1448,6 +1448,14 @@ PrefabInstance:
       propertyPath: nextLevelScene
       value: 
       objectReference: {fileID: 102900000, guid: 00350859173c17d4593b461f3b5fba7d, type: 3}
+    - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
+      propertyPath: maxTimeForStar3
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3544398496179257844, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
+      propertyPath: maxPipesForStar2
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7608554116564514878, guid: 74c3e55d5821d5943864cb646ef9b57a, type: 3}
       propertyPath: m_Name
       value: GameManager
