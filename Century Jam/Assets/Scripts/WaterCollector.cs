@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 using TMPro;
 
 public class WaterCollector : MonoBehaviour
@@ -15,10 +14,8 @@ public class WaterCollector : MonoBehaviour
     [SerializeField] private Vector2 detectionOffset = Vector2.zero;
 
     [Header("Collection")]
-    [Tooltip("How many resting particles needed to consider the collector full.")]
+    [Tooltip("How many particles needed to consider the collector full.")]
     [SerializeField] private int capacity = 50;
-    [Tooltip("Max speed a particle can have to be considered 'resting'. Particles still moving won't count.")]
-    [SerializeField] private float restingSpeedThreshold = 0.02f;
 
     [Header("Debug Counter")]
     [SerializeField] private bool showDebugCounter = false;
@@ -27,12 +24,8 @@ public class WaterCollector : MonoBehaviour
     [SerializeField] private Color counterColor = Color.white;
     [SerializeField] private Color counterFullColor = new Color(0.3f, 1f, 0.4f);
 
-    [Header("Events")]
-    public UnityEvent onFilled;
-
     private int currentCount;
     private bool isFull;
-    private bool wasFull;
     private TextMeshPro counterText;
 
     public int CollectedCount => currentCount;
@@ -75,7 +68,6 @@ public class WaterCollector : MonoBehaviour
         // This is a LIVE count — if water spills out, the count drops.
         Vector2 center = (Vector2)transform.position + detectionOffset;
         Vector2 halfSize = detectionSize * 0.5f;
-        float speedThresholdSqr = restingSpeedThreshold * restingSpeedThreshold;
 
         int count = 0;
 
@@ -96,26 +88,13 @@ public class WaterCollector : MonoBehaviour
                 if (pos.y < center.y - halfSize.y || pos.y > center.y + halfSize.y)
                     continue;
 
-                // Is the particle resting (low velocity)?
-                if (particles[i].velocity.sqrMagnitude > speedThresholdSqr)
-                    continue;
-
                 count++;
             }
         }
 
         currentCount = count;
 
-        // Check full state
         isFull = currentCount >= capacity;
-
-        if (isFull && !wasFull)
-        {
-            onFilled?.Invoke();
-            Debug.Log($"{name}: collector is full! ({currentCount}/{capacity})");
-        }
-        wasFull = isFull;
-
         UpdateCounter();
     }
 
@@ -133,7 +112,6 @@ public class WaterCollector : MonoBehaviour
     {
         currentCount = 0;
         isFull = false;
-        wasFull = false;
         UpdateCounter();
     }
 

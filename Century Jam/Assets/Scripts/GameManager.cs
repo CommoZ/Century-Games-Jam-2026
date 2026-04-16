@@ -15,6 +15,11 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject pipeButtons;
     [SerializeField] private GameObject playAnimation;
+
+    [Tooltip("The PlayButton container (parent of Start icon). Hidden on victory.")]
+    [SerializeField] private GameObject playButtonContainer;
+    [Tooltip("The ResetButton container (parent of Reset/Clear icons). Hidden on victory.")]
+    [SerializeField] private GameObject resetButtonContainer;
     [SerializeField] private TextMeshProUGUI time;
     [SerializeField] private TextMeshProUGUI winTime;
 
@@ -68,6 +73,13 @@ public class GameManager : MonoBehaviour
             lavaWaterInteraction = FindObjectOfType<LavaWaterInteraction>();
 
         collectors = FindObjectsOfType<WaterCollector>();
+
+        // Auto-find victoryUI if not assigned
+        if (victoryUI == null)
+        {
+            Transform t = FindInactiveOrActive("VictoryUI");
+            if (t != null) victoryUI = t.gameObject;
+        }
 
         // Ensure we start in a clean ready state
         isPlaying = false;
@@ -220,6 +232,8 @@ public class GameManager : MonoBehaviour
         if (playAnimation != null)
             playAnimation.transform.rotation = Quaternion.Euler(0, 0, 0);
         if (pipeButtons != null) pipeButtons.SetActive(true);
+        if (playButtonContainer != null) playButtonContainer.SetActive(true);
+        if (resetButtonContainer != null) resetButtonContainer.SetActive(true);
         if (resetButton != null) resetButton.SetActive(false);
         if (clearButton != null) clearButton.SetActive(true);
         timePassed = 0.0f;
@@ -256,6 +270,11 @@ public class GameManager : MonoBehaviour
         // Stop play animation
         if (playAnimation != null)
             playAnimation.transform.rotation = Quaternion.Euler(0, 0, 0);
+
+        // Hide gameplay UI
+        if (pipeButtons != null) pipeButtons.SetActive(false);
+        if (playButtonContainer != null) playButtonContainer.SetActive(false);
+        if (resetButtonContainer != null) resetButtonContainer.SetActive(false);
 
         // Show victory UI and tell LevelStats to calculate stars
         if (victoryUI != null)
@@ -297,5 +316,21 @@ public class GameManager : MonoBehaviour
     {
         ResetToReadyState();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    /// <summary>
+    /// Find a GameObject by name even if it's inside a prefab or inactive.
+    /// </summary>
+    private static Transform FindInactiveOrActive(string objectName)
+    {
+        Transform[] all = Resources.FindObjectsOfTypeAll<Transform>();
+        Scene active = SceneManager.GetActiveScene();
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i] == null || all[i].name != objectName) continue;
+            if (!all[i].gameObject.scene.IsValid()) continue;
+            if (all[i].gameObject.scene == active) return all[i];
+        }
+        return null;
     }
 }
