@@ -130,10 +130,10 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: 0.44, y: 0.5}
-  - {x: 0.29028487, y: -0.5368142}
-  - {x: -0.28835255, y: -0.5317421}
-  - {x: -0.44698155, y: 0.4758873}
+  - {x: 0.44748157, y: 0.316702}
+  - {x: 0.28280336, y: -0.6490376}
+  - {x: -0.28461176, y: -0.6327431}
+  - {x: -0.45820388, y: 0.3225155}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -151,8 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterCollector
   fluids: []
-  detectionSize: {x: 1.53, y: 2.07}
-  detectionOffset: {x: 0, y: -0.03}
+  detectionSize: {x: 0.9, y: 1.05}
+  detectionOffset: {x: 0, y: -0.1}
   capacity: 20
   showDebugCounter: 0
   counterFontSize: 3

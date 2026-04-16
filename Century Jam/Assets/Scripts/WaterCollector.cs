@@ -66,7 +66,8 @@ public class WaterCollector : MonoBehaviour
 
         // Count particles currently resting inside the detection zone.
         // This is a LIVE count — if water spills out, the count drops.
-        Vector2 center = (Vector2)transform.position + detectionOffset;
+        // OBB detection: transform particle positions into local space
+        // so the check works correctly with rotation and scale
         Vector2 halfSize = detectionSize * 0.5f;
 
         int count = 0;
@@ -80,12 +81,16 @@ public class WaterCollector : MonoBehaviour
             var particles = fluid.Particles;
             for (int i = 0; i < particles.Count; i++)
             {
-                Vector2 pos = particles[i].position;
+                // Convert particle world position to collector's local space
+                Vector2 local = transform.InverseTransformPoint(particles[i].position);
 
-                // Inside the detection rectangle?
-                if (pos.x < center.x - halfSize.x || pos.x > center.x + halfSize.x)
+                // Offset by detection offset (in local space)
+                local -= detectionOffset;
+
+                // Inside the local-space rectangle?
+                if (local.x < -halfSize.x || local.x > halfSize.x)
                     continue;
-                if (pos.y < center.y - halfSize.y || pos.y > center.y + halfSize.y)
+                if (local.y < -halfSize.y || local.y > halfSize.y)
                     continue;
 
                 count++;
@@ -117,18 +122,27 @@ public class WaterCollector : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Draw the detection zone so you can see and size it in the Scene view
-        Vector2 center = (Vector2)transform.position + detectionOffset;
+        // Draw the OBB detection zone respecting rotation and scale
+        Vector2 halfSize = detectionSize * 0.5f;
+
+        // Four local-space corners offset by detectionOffset
+        Vector3 tl = new Vector3(detectionOffset.x - halfSize.x, detectionOffset.y + halfSize.y, 0f);
+        Vector3 tr = new Vector3(detectionOffset.x + halfSize.x, detectionOffset.y + halfSize.y, 0f);
+        Vector3 br = new Vector3(detectionOffset.x + halfSize.x, detectionOffset.y - halfSize.y, 0f);
+        Vector3 bl = new Vector3(detectionOffset.x - halfSize.x, detectionOffset.y - halfSize.y, 0f);
+
+        // Transform to world space (includes position, rotation, scale)
+        tl = transform.TransformPoint(tl);
+        tr = transform.TransformPoint(tr);
+        br = transform.TransformPoint(br);
+        bl = transform.TransformPoint(bl);
 
         Gizmos.color = isFull
             ? new Color(0.2f, 1.0f, 0.3f, 0.5f)
             : new Color(0.2f, 0.6f, 1.0f, 0.4f);
-        Gizmos.DrawWireCube(center, detectionSize);
-
-        // Filled semi-transparent interior
-        Gizmos.color = isFull
-            ? new Color(0.2f, 1.0f, 0.3f, 0.15f)
-            : new Color(0.2f, 0.6f, 1.0f, 0.1f);
-        Gizmos.DrawCube(center, detectionSize);
+        Gizmos.DrawLine(tl, tr);
+        Gizmos.DrawLine(tr, br);
+        Gizmos.DrawLine(br, bl);
+        Gizmos.DrawLine(bl, tl);
     }
 }
