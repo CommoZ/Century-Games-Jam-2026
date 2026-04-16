@@ -379,11 +379,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   fluids: []
   lavaWaterInteraction: {fileID: 0}
-  resetButton: {fileID: 547422687}
-  clearButton: {fileID: 1122626425}
-  pipeButtons: {fileID: 1498588611}
-  playAnimation: {fileID: 680488992}
-  victoryUI: {fileID: 490997488}
+  resetButton: {fileID: 0}
+  clearButton: {fileID: 0}
+  pipeButtons: {fileID: 0}
+  playAnimation: {fileID: 0}
+  time: {fileID: 0}
+  winTime: {fileID: 0}
+  victoryUI: {fileID: 0}
 --- !u!4 &381572981
 Transform:
   m_ObjectHideFlags: 0
@@ -399,11 +401,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &490997488 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4504817069537632050, guid: 4f1c49af1cf617345a708217fc97caa0, type: 3}
-  m_PrefabInstance: {fileID: 1153418155}
-  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &520171978
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2459296246485779270, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_Name
+      value: BGM Object
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.98013
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.14181
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4285461035522246214, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4b6c3e2736a87b54b83bf4b2541b4752, type: 3}
 --- !u!1 &522889662
 GameObject:
   m_ObjectHideFlags: 0
@@ -437,11 +491,6 @@ Transform:
   - {fileID: 1164581235}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &547422687 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6301526776019876006, guid: 4f1c49af1cf617345a708217fc97caa0, type: 3}
-  m_PrefabInstance: {fileID: 1153418155}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &652421304 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2217383332220486493, guid: 5251137febf10f340a0dc4db18e7ac92, type: 3}
@@ -453,11 +502,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cecea731dee44664284d55becda4c325, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHFluid2D
---- !u!1 &680488992 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6053082894507010583, guid: 4f1c49af1cf617345a708217fc97caa0, type: 3}
-  m_PrefabInstance: {fileID: 1153418155}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &709245962
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,6 +594,7 @@ MonoBehaviour:
   oscillationSpeed: 0.5
   windVisualMaterial: {fileID: 2100000, guid: f689df7a2542b524390b9513c8fb715e, type: 2}
   visualSortingOrder: 8
+  pipesBlockWind: 1
 --- !u!4 &809778119
 Transform:
   m_ObjectHideFlags: 0
@@ -726,11 +771,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cecea731dee44664284d55becda4c325, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SPHFluid2D
---- !u!1 &1122626425 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4983320926604514452, guid: 4f1c49af1cf617345a708217fc97caa0, type: 3}
-  m_PrefabInstance: {fileID: 1153418155}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1153418155
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1212,11 +1252,6 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
---- !u!1 &1498588611 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1899029329901767731, guid: 4f1c49af1cf617345a708217fc97caa0, type: 3}
-  m_PrefabInstance: {fileID: 1153418155}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1534380520
 GameObject:
   m_ObjectHideFlags: 0
@@ -1695,3 +1730,4 @@ SceneRoots:
   - {fileID: 809778119}
   - {fileID: 2853867094600381545}
   - {fileID: 1153418155}
+  - {fileID: 520171978}

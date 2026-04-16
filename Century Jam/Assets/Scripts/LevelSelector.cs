@@ -52,7 +52,7 @@ public class LevelSelector : MonoBehaviour
         Debug.Log("Loading Level " + level);
 
         // Example:
-        // SceneManager.LoadScene("Level_" + level);
+        SceneManager.LoadScene("Level " + level);
     }
 
     public void returnMenu()
