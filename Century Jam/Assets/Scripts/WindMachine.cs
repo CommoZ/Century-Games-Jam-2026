@@ -2,14 +2,23 @@ using UnityEngine;
 
 public class WindMachine : MonoBehaviour
 {
+    public enum WindShape { Cone, Rectangle }
+
     [Header("Wind")]
     [SerializeField] private bool windEnabled = true;
-    [Tooltip("Force applied to particles directly in front of the fan.")]
+    [SerializeField] private WindShape shape = WindShape.Cone;
+    [Tooltip("Force applied to particles.")]
     [SerializeField] private float windStrength = 0.003f;
-    [Tooltip("How far the wind reaches from the fan.")]
+    [Tooltip("How far the wind reaches from the source.")]
     [SerializeField] private float windRange = 5.0f;
-    [Tooltip("Half-angle of the wind cone in degrees. 0 = laser, 45 = wide fan, 90 = hemisphere.")]
+
+    [Header("Cone Settings")]
+    [Tooltip("Half-angle of the wind cone in degrees. Only used when Shape = Cone.")]
     [SerializeField] private float coneHalfAngle = 30.0f;
+
+    [Header("Rectangle Settings")]
+    [Tooltip("Width of the rectangle perpendicular to the wind direction. Only used when Shape = Rectangle.")]
+    [SerializeField] private float rectWidth = 2.0f;
 
     [Header("Oscillation (optional)")]
     [Tooltip("If > 0, the fan sweeps back and forth by this many degrees.")]
@@ -29,10 +38,12 @@ public class WindMachine : MonoBehaviour
     private void Start()
     {
         allFluids = FindObjectsOfType<SPHFluid2D>();
-        SetupVisualQuad();
+        SetupVisual();
     }
 
-    private void SetupVisualQuad()
+    // ───────────────────── Visual Setup ─────────────────────
+
+    private void SetupVisual()
     {
         if (windVisualMaterial == null)
             return;
@@ -44,7 +55,7 @@ public class WindMachine : MonoBehaviour
         visualQuad.transform.localScale = Vector3.one;
 
         MeshFilter mf = visualQuad.AddComponent<MeshFilter>();
-        mf.mesh = CreateConeMesh();
+        mf.mesh = (shape == WindShape.Cone) ? CreateConeMesh() : CreateRectMesh();
 
         MeshRenderer mr = visualQuad.AddComponent<MeshRenderer>();
         visualMatInstance = new Material(windVisualMaterial);
@@ -54,19 +65,12 @@ public class WindMachine : MonoBehaviour
         mr.receiveShadows = false;
     }
 
-    /// <summary>
-    /// Builds a fan/cone mesh that matches the exact physics AOE.
-    /// Origin at (0,0), extending along local +X out to windRange.
-    /// UV.x = 0..1 from source to range end, UV.y = 0..1 across the cone width.
-    /// </summary>
     private Mesh CreateConeMesh()
     {
         int segments = 24;
-        // +1 for the origin vertex
         Vector3[] verts = new Vector3[segments + 2];
         Vector2[] uvs = new Vector2[segments + 2];
 
-        // Origin (the fan source)
         verts[0] = Vector3.zero;
         uvs[0] = new Vector2(0f, 0.5f);
 
@@ -80,11 +84,9 @@ public class WindMachine : MonoBehaviour
                 Mathf.Sin(angle) * windRange,
                 0f
             );
-            // UV.x = 1 at range end, UV.y = 0..1 across the width
             uvs[i + 1] = new Vector2(1f, t);
         }
 
-        // Triangles: fan from origin to each pair of arc vertices
         int[] tris = new int[segments * 3];
         for (int i = 0; i < segments; i++)
         {
@@ -101,11 +103,48 @@ public class WindMachine : MonoBehaviour
         return mesh;
     }
 
+    private Mesh CreateRectMesh()
+    {
+        float halfW = rectWidth * 0.5f;
+
+        // Rectangle from origin extending along local +X
+        // UV.x = 0 at source, 1 at range end
+        // UV.y = 0..1 across the width
+        Mesh mesh = new Mesh();
+        mesh.vertices = new Vector3[]
+        {
+            new Vector3(0f,         -halfW, 0f),
+            new Vector3(windRange,  -halfW, 0f),
+            new Vector3(windRange,   halfW, 0f),
+            new Vector3(0f,          halfW, 0f)
+        };
+        mesh.uv = new Vector2[]
+        {
+            new Vector2(0f, 0f),
+            new Vector2(1f, 0f),
+            new Vector2(1f, 1f),
+            new Vector2(0f, 1f)
+        };
+        mesh.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
+        mesh.RecalculateBounds();
+        return mesh;
+    }
+
+    // ───────────────────── Physics ─────────────────────
+
     private void FixedUpdate()
     {
         if (!windEnabled || allFluids == null)
             return;
 
+        if (shape == WindShape.Cone)
+            ApplyConWind();
+        else
+            ApplyRectWind();
+    }
+
+    private void ApplyConWind()
+    {
         Vector2 origin = transform.position;
         Vector2 forward = GetCurrentWindDirection();
         float cosThreshold = Mathf.Cos(coneHalfAngle * Mathf.Deg2Rad);
@@ -114,28 +153,21 @@ public class WindMachine : MonoBehaviour
         for (int f = 0; f < allFluids.Length; f++)
         {
             SPHFluid2D fluid = allFluids[f];
-            if (fluid == null || !fluid.enabled)
-                continue;
+            if (fluid == null || !fluid.enabled) continue;
 
             var particles = fluid.Particles;
             for (int i = 0; i < particles.Count; i++)
             {
                 Vector2 toParticle = particles[i].position - origin;
                 float distSqr = toParticle.sqrMagnitude;
-
-                // Outside range?
-                if (distSqr > rangeSqr || distSqr < 0.001f)
-                    continue;
+                if (distSqr > rangeSqr || distSqr < 0.001f) continue;
 
                 float dist = Mathf.Sqrt(distSqr);
                 Vector2 dir = toParticle / dist;
 
-                // Outside cone?
                 float dot = Vector2.Dot(dir, forward);
-                if (dot < cosThreshold)
-                    continue;
+                if (dot < cosThreshold) continue;
 
-                // Strength falls off with distance and is stronger at cone center
                 float distanceFalloff = 1.0f - (dist / windRange);
                 float coneFalloff = (dot - cosThreshold) / (1.0f - cosThreshold);
                 float force = windStrength * distanceFalloff * coneFalloff;
@@ -145,10 +177,58 @@ public class WindMachine : MonoBehaviour
         }
     }
 
+    private void ApplyRectWind()
+    {
+        Vector2 origin = transform.position;
+        Vector2 forward = GetCurrentWindDirection();
+        Vector2 perp = new Vector2(-forward.y, forward.x);
+        float halfW = rectWidth * 0.5f;
+
+        for (int f = 0; f < allFluids.Length; f++)
+        {
+            SPHFluid2D fluid = allFluids[f];
+            if (fluid == null || !fluid.enabled) continue;
+
+            var particles = fluid.Particles;
+            for (int i = 0; i < particles.Count; i++)
+            {
+                Vector2 toParticle = particles[i].position - origin;
+
+                // Project onto the wind direction (how far along)
+                float alongDist = Vector2.Dot(toParticle, forward);
+                if (alongDist < 0f || alongDist > windRange) continue;
+
+                // Project perpendicular (how far across)
+                float acrossDist = Vector2.Dot(toParticle, perp);
+                if (Mathf.Abs(acrossDist) > halfW) continue;
+
+                // Falloff: weaker at the edges and at range end
+                float distanceFalloff = 1.0f - (alongDist / windRange);
+                float edgeFalloff = 1.0f - (Mathf.Abs(acrossDist) / halfW);
+                float force = windStrength * distanceFalloff * edgeFalloff;
+
+                fluid.AddForce(i, forward * force);
+            }
+        }
+    }
+
+    // ───────────────────── Visual Update ─────────────────────
+
     private void Update()
     {
-        UpdateVisual();
+        if (visualQuad == null) return;
+
+        visualQuad.SetActive(windEnabled);
+
+        if (visualMatInstance != null)
+        {
+            Vector2 dir = GetCurrentWindDirection();
+            visualMatInstance.SetVector("_WindDir", new Vector4(dir.x, dir.y, 0, 0));
+            visualMatInstance.SetFloat("_WindStrength", windEnabled ? windStrength : 0f);
+        }
     }
+
+    // ───────────────────── Helpers ─────────────────────
 
     private Vector2 GetCurrentWindDirection()
     {
@@ -165,21 +245,6 @@ public class WindMachine : MonoBehaviour
         return new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
     }
 
-    private void UpdateVisual()
-    {
-        if (visualQuad == null)
-            return;
-
-        visualQuad.SetActive(windEnabled);
-
-        if (visualMatInstance != null)
-        {
-            Vector2 dir = GetCurrentWindDirection();
-            visualMatInstance.SetVector("_WindDir", new Vector4(dir.x, dir.y, 0, 0));
-            visualMatInstance.SetFloat("_WindStrength", windEnabled ? windStrength : 0f);
-        }
-    }
-
     public void SetEnabled(bool enabled) => windEnabled = enabled;
     public void Toggle() => windEnabled = !windEnabled;
     public void SetStrength(float strength) => windStrength = strength;
@@ -191,6 +256,8 @@ public class WindMachine : MonoBehaviour
             Destroy(visualQuad);
     }
 
+    // ───────────────────── Gizmos ─────────────────────
+
     private void OnDrawGizmos()
     {
         Vector2 origin = transform.position;
@@ -198,17 +265,24 @@ public class WindMachine : MonoBehaviour
         float rad = angle * Mathf.Deg2Rad;
         Vector2 forward = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
 
-        // Cone outline
+        Gizmos.color = windEnabled ? new Color(0.4f, 0.8f, 1.0f, 0.6f) : new Color(0.5f, 0.5f, 0.5f, 0.3f);
+
+        if (shape == WindShape.Cone)
+            DrawConeGizmo(origin, angle, forward);
+        else
+            DrawRectGizmo(origin, forward);
+    }
+
+    private void DrawConeGizmo(Vector2 origin, float angle, Vector2 forward)
+    {
         float topAngle = (angle + coneHalfAngle) * Mathf.Deg2Rad;
         float botAngle = (angle - coneHalfAngle) * Mathf.Deg2Rad;
         Vector2 topEdge = new Vector2(Mathf.Cos(topAngle), Mathf.Sin(topAngle)) * windRange;
         Vector2 botEdge = new Vector2(Mathf.Cos(botAngle), Mathf.Sin(botAngle)) * windRange;
 
-        Gizmos.color = windEnabled ? new Color(0.4f, 0.8f, 1.0f, 0.6f) : new Color(0.5f, 0.5f, 0.5f, 0.3f);
         Gizmos.DrawLine((Vector3)origin, (Vector3)(origin + topEdge));
         Gizmos.DrawLine((Vector3)origin, (Vector3)(origin + botEdge));
 
-        // Arc
         int segments = 16;
         Vector2 prev = origin + botEdge;
         for (int i = 1; i <= segments; i++)
@@ -220,9 +294,26 @@ public class WindMachine : MonoBehaviour
             prev = p;
         }
 
-        // Center direction arrow
         Gizmos.color = Color.cyan;
-        Vector3 tip = (Vector3)(origin + forward * windRange * 0.5f);
-        Gizmos.DrawLine((Vector3)origin, tip);
+        Gizmos.DrawLine((Vector3)origin, (Vector3)(origin + forward * windRange * 0.5f));
+    }
+
+    private void DrawRectGizmo(Vector2 origin, Vector2 forward)
+    {
+        Vector2 perp = new Vector2(-forward.y, forward.x);
+        float halfW = rectWidth * 0.5f;
+
+        Vector2 nearL = origin - perp * halfW;
+        Vector2 nearR = origin + perp * halfW;
+        Vector2 farL = nearL + forward * windRange;
+        Vector2 farR = nearR + forward * windRange;
+
+        Gizmos.DrawLine((Vector3)nearL, (Vector3)farL);
+        Gizmos.DrawLine((Vector3)nearR, (Vector3)farR);
+        Gizmos.DrawLine((Vector3)nearL, (Vector3)nearR);
+        Gizmos.DrawLine((Vector3)farL, (Vector3)farR);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine((Vector3)origin, (Vector3)(origin + forward * windRange * 0.5f));
     }
 }
