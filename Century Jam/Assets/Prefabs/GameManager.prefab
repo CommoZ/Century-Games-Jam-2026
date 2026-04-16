@@ -103,6 +103,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 961154822866379695}
+        m_TargetAssemblyTypeName: SFXScript, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1793431618186077432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,6 +310,18 @@ MonoBehaviour:
       - m_Target: {fileID: 8533893373490467892}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: OnNextLevelButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 961154822866379695}
+        m_TargetAssemblyTypeName: SFXScript, Assembly-CSharp
+        m_MethodName: PlaySound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -649,6 +673,18 @@ MonoBehaviour:
       - m_Target: {fileID: 8533893373490467892}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: onExitButtonPress
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 961154822866379695}
+        m_TargetAssemblyTypeName: SFXScript, Assembly-CSharp
+        m_MethodName: PlaySound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2476,6 +2512,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 961154822866379695}
+        m_TargetAssemblyTypeName: SFXScript, Assembly-CSharp
+        m_MethodName: PlaySound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &7698605665553406627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2615,6 +2663,7 @@ Transform:
   - {fileID: 2822815529136667892}
   - {fileID: 4779223946821646406}
   - {fileID: 3764925983189318054}
+  - {fileID: 1988681771279128671}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8533893373490467892
@@ -3030,3 +3079,76 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1001 &4826626252278433035
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2504782542800267202}
+    m_Modifications:
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -267.27197
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -372.4432
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7011789585853836803, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+      propertyPath: m_Name
+      value: SFX Object
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+--- !u!114 &961154822866379695 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5741291524029359780, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+  m_PrefabInstance: {fileID: 4826626252278433035}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 644f98ebdf5cb19439cb764b8ea31b5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SFXScript
+--- !u!4 &1988681771279128671 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6440895719879646548, guid: 60342acbc2c8d2344878d06a6112752b, type: 3}
+  m_PrefabInstance: {fileID: 4826626252278433035}
+  m_PrefabAsset: {fileID: 0}
