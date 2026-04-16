@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Tracks level statistics and drives the victory UI. GameManager owns the
@@ -22,19 +23,14 @@ public class LevelStats : MonoBehaviour
     [Tooltip("Pipe count text. Optional.")]
     [SerializeField] private TextMeshProUGUI victoryPipesText;
 
-    [Header("Star Positions (drag GameObjects here)")]
-    [Tooltip("GameObject whose Transform marks where star 1 appears.")]
-    [SerializeField] private Transform star1Position;
-    [Tooltip("GameObject whose Transform marks where star 2 appears.")]
-    [SerializeField] private Transform star2Position;
-    [Tooltip("GameObject whose Transform marks where star 3 appears.")]
-    [SerializeField] private Transform star3Position;
+    [Header("Star Images (drag UI Image objects here)")]
+    [SerializeField] private Image star1Image;
+    [SerializeField] private Image star2Image;
+    [SerializeField] private Image star3Image;
 
-    [Header("Star Prefabs")]
-    [Tooltip("Prefab or sprite to instantiate when a star is earned.")]
-    [SerializeField] private GameObject starEarnedPrefab;
-    [Tooltip("Prefab or sprite to instantiate when a star is not earned.")]
-    [SerializeField] private GameObject starUnearnedPrefab;
+    [Header("Star Sprites")]
+    [SerializeField] private Sprite starEarnedSprite;
+    [SerializeField] private Sprite starUnearnedSprite;
 
     [Header("Star Condition Text")]
     [SerializeField] private TextMeshProUGUI star2ConditionText;
@@ -56,7 +52,6 @@ public class LevelStats : MonoBehaviour
 
     private float timePassed;
     private bool isTracking;
-    private readonly System.Collections.Generic.List<GameObject> spawnedStars = new System.Collections.Generic.List<GameObject>();
     private int starsEarned;
 
     public string NextLevelScene
@@ -128,7 +123,9 @@ public class LevelStats : MonoBehaviour
         starsEarned = 0;
 
         UpdateTimeText();
-        ClearStars();
+        SetStarVisual(star1Image, false);
+        SetStarVisual(star2Image, false);
+        SetStarVisual(star3Image, false);
     }
 
     public void Reset()
@@ -140,7 +137,9 @@ public class LevelStats : MonoBehaviour
         starsEarned = 0;
 
         UpdateTimeText();
-        ClearStars();
+        SetStarVisual(star1Image, false);
+        SetStarVisual(star2Image, false);
+        SetStarVisual(star3Image, false);
 
         if (nextLevelButton != null && nextLevelButton.name != "VictoryUI")
             nextLevelButton.SetActive(false);
@@ -175,10 +174,9 @@ public class LevelStats : MonoBehaviour
         if (earnedStar2) starsEarned = 2;
         if (earnedStar2 && earnedStar3) starsEarned = 3;
 
-        ClearStars();
-        SpawnStar(star1Position, earnedStar1);
-        SpawnStar(star2Position, earnedStar2);
-        SpawnStar(star3Position, earnedStar3);
+        SetStarVisual(star1Image, earnedStar1);
+        SetStarVisual(star2Image, earnedStar2);
+        SetStarVisual(star3Image, earnedStar3);
 
         // Title: "BEAT LEVEL X"
         if (victoryTitleText != null)
@@ -197,7 +195,7 @@ public class LevelStats : MonoBehaviour
 
         // Star 2 condition: pipe limit
         if (star2ConditionText != null)
-            star2ConditionText.text = maxPipesForStar2 + " PIPES USED";
+            star2ConditionText.text = "UNDER " + maxPipesForStar2 + " PIPES";
 
         // Star 3 condition: time limit
         if (star3ConditionText != null)
@@ -250,10 +248,10 @@ public class LevelStats : MonoBehaviour
     private void UpdateConditionTexts()
     {
         if (star2ConditionText != null)
-            star2ConditionText.text = (maxPipesForStar2 > 1) ? maxPipesForStar2 + " Pipes  Used" : maxPipesForStar2 + " Pipe  Used";
+            star2ConditionText.text = "Use " + maxPipesForStar2 + " or fewer pipes";
 
         if (star3ConditionText != null)
-            star3ConditionText.text = "Under " + FormatTime(maxTimeForStar3);
+            star3ConditionText.text = "Complete within " + FormatTime(maxTimeForStar3);
     }
 
     private void UpdateTimeText()
@@ -262,25 +260,13 @@ public class LevelStats : MonoBehaviour
             timeText.text = FormatTime(timePassed);
     }
 
-    private void SpawnStar(Transform position, bool earned)
+    private void SetStarVisual(Image starImage, bool earned)
     {
-        if (position == null) return;
+        if (starImage == null) return;
 
-        GameObject prefab = earned ? starEarnedPrefab : starUnearnedPrefab;
-        if (prefab == null) return;
-
-        GameObject star = Instantiate(prefab, position.position, position.rotation, position);
-        spawnedStars.Add(star);
-    }
-
-    private void ClearStars()
-    {
-        for (int i = 0; i < spawnedStars.Count; i++)
-        {
-            if (spawnedStars[i] != null)
-                Destroy(spawnedStars[i]);
-        }
-        spawnedStars.Clear();
+        Sprite sprite = earned ? starEarnedSprite : starUnearnedSprite;
+        if (sprite != null)
+            starImage.sprite = sprite;
     }
 
     private string InferNextLevelScene()
