@@ -153,7 +153,7 @@ MonoBehaviour:
   fluids: []
   detectionSize: {x: 0.9, y: 1}
   detectionOffset: {x: 0, y: 0}
-  capacity: 40
+  capacity: 20
   restingSpeedThreshold: 0.02
   showDebugCounter: 0
   counterFontSize: 3
