@@ -36,22 +36,23 @@ public class GameManager : MonoBehaviour
     public bool IsPlaying => isPlaying;
 
     /// <summary>
-    /// Total collected particles across all water collectors / total capacity.
+    /// Number of fully-filled collectors / total number of collectors.
+    /// Victory requires every collector to individually reach its own capacity.
     /// </summary>
     public float TotalFillPercent
     {
         get
         {
             if (collectors == null || collectors.Length == 0) return 0f;
-            int totalCollected = 0;
-            int totalCapacity = 0;
+            int filledCount = 0;
+            int totalCount = 0;
             for (int i = 0; i < collectors.Length; i++)
             {
                 if (collectors[i] == null) continue;
-                totalCollected += collectors[i].CollectedCount;
-                totalCapacity += collectors[i].Capacity;
+                totalCount++;
+                if (collectors[i].IsFull) filledCount++;
             }
-            return totalCapacity > 0 ? (float)totalCollected / totalCapacity : 0f;
+            return totalCount > 0 ? (float)filledCount / totalCount : 0f;
         }
     }
 
@@ -110,10 +111,22 @@ public class GameManager : MonoBehaviour
             if (playAnimation != null)
                 playAnimation.transform.Rotate(0, 0, -(Time.deltaTime * 100.0f));
 
-            // Check victory: total collected across ALL collectors >= total capacity
+            // Check victory: ALL collectors must individually be full
             float fill = TotalFillPercent;
-            if (Time.frameCount % 60 == 0) // log once per second
-                Debug.Log($"[Victory Check] Fill: {fill * 100f:F1}% | Collectors: {(collectors != null ? collectors.Length : 0)}");
+            if (Time.frameCount % 60 == 0 && collectors != null) // log once per second
+            {
+                string details = "";
+                int filled = 0, total = 0;
+                for (int i = 0; i < collectors.Length; i++)
+                {
+                    if (collectors[i] == null) continue;
+                    total++;
+                    if (collectors[i].IsFull) filled++;
+                    string mark = collectors[i].IsFull ? "FULL" : $"{collectors[i].CollectedCount}/{collectors[i].Capacity}";
+                    details += $" | [{collectors[i].name}: {mark}]";
+                }
+                Debug.Log($"[Victory Check] {filled}/{total} collectors full{details}");
+            }
             if (!hasWon && fill >= 1f)
                 OnVictory();
         }
@@ -272,9 +285,12 @@ public class GameManager : MonoBehaviour
             playAnimation.transform.rotation = Quaternion.Euler(0, 0, 0);
 
         // Hide gameplay UI
+        Debug.Log($"[Victory] pipeButtons={pipeButtons != null}, playButtonContainer={playButtonContainer != null}, resetButtonContainer={resetButtonContainer != null}");
         if (pipeButtons != null) pipeButtons.SetActive(false);
         if (playButtonContainer != null) playButtonContainer.SetActive(false);
+        else Debug.LogWarning("[Victory] playButtonContainer is NOT assigned! Drag PlayButton here in the Inspector.");
         if (resetButtonContainer != null) resetButtonContainer.SetActive(false);
+        else Debug.LogWarning("[Victory] resetButtonContainer is NOT assigned! Drag ResetButton here in the Inspector.");
 
         // Show victory UI and tell LevelStats to calculate stars
         if (victoryUI != null)
